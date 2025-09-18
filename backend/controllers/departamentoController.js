@@ -89,19 +89,19 @@ exports.atualizarDepartamento = async (req, res) => {
 
    
     // Verifica se a departamento existe
-    const existingPersonResult = await query(
+    const existingDepartamentoResult = await query(
       'SELECT * FROM departamento WHERE id_dep = $1',
       [id]
     );
 
-    if (existingPersonResult.rows.length === 0) {
+    if (existingDepartamentoResult.rows.length === 0) {
       return res.status(404).json({ error: 'Departamento não encontrada' });
     }
 
     // Constrói a query de atualização dinamicamente para campos não nulos
-    const currentPerson = existingPersonResult.rows[0];
+    const currentDepartamento = existingDepartamentoResult.rows[0];
     const updatedFields = {
-      nome_dep: nome_dep !== undefined ? nome_dep : currentPerson.nome_dep     
+      nome_dep: nome_dep !== undefined ? nome_dep : currentDepartamento.nome_dep     
     };
 
     // Atualiza a departamento
@@ -123,12 +123,12 @@ exports.deletarDepartamento = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     // Verifica se a departamento existe
-    const existingPersonResult = await query(
+    const existingDepartamentoResult = await query(
       'SELECT * FROM departamento WHERE id_dep = $1',
       [id]
     );
 
-    if (existingPersonResult.rows.length === 0) {
+    if (existingDepartamentoResult.rows.length === 0) {
       return res.status(404).json({ error: 'Departamento não encontrada' });
     }
 

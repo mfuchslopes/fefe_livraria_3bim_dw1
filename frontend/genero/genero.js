@@ -1,7 +1,7 @@
 
 // Configuração da API, IP e porta.
 const API_BASE_URL = 'http://localhost:3001';
-let currentPersonId = null;
+let currentGeneroId = null;
 let operacao = null;
 
 // Elementos do DOM
@@ -93,6 +93,7 @@ async function buscarGenero() {
     searchId.focus();
     try {
         const response = await fetch(`${API_BASE_URL}/genero/${id}`);
+        console.log("searchId:", searchId, "value:", searchId?.value);
 
         if (response.ok) {
             const genero = await response.json();
@@ -119,7 +120,10 @@ async function buscarGenero() {
 
 // --- Alterado para mostrar imagem ao preencher formulário ---
 function preencherFormulario(genero) {
-    currentPersonId = genero.id_genero;
+
+    console.log(JSON.stringify(genero));
+
+    currentGeneroId = genero.id_genero;
     searchId.value = genero.id_genero;
     document.getElementById('nome_genero').value = genero.nome_genero || '';
     document.getElementById('descricao_genero').value = genero.descricao_genero || '';
@@ -138,16 +142,16 @@ function preencherFormulario(genero) {
 async function incluirGenero() {
 
     mostrarMensagem('Digite os dados!', 'success');
-    currentPersonId = searchId.value;
-    // console.log('Incluir nova genero - currentPersonId: ' + currentPersonId);
+    currentGeneroId = searchId.value;
+    // console.log('Incluir novo genero - currentGeneroId: ' + currentGeneroId);
     limparFormulario();
-    searchId.value = currentPersonId;
+    searchId.value = currentGeneroId;
     bloquearCampos(true);
 
     mostrarBotoes(false, false, false, false, true, true); // mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
     document.getElementById('nome_genero').focus();
     operacao = 'incluir';
-    // console.log('fim nova genero - currentPersonId: ' + currentPersonId);
+    // console.log('fim nova genero - currentGeneroId: ' + currentGeneroId);
 }
 
 // Função para alterar genero
@@ -162,7 +166,7 @@ async function alterarGenero() {
 // Função para excluir genero
 async function excluirGenero() {
     mostrarMensagem('Excluindo genero...', 'info');
-    currentPersonId = searchId.value;
+    currentGeneroId = searchId.value;
     //bloquear searchId
     searchId.disabled = true;
     bloquearCampos(false); // libera os demais campos
@@ -171,15 +175,15 @@ async function excluirGenero() {
 }
 
 async function salvarOperacao() {
-    console.log('Operação:', operacao + ' - currentPersonId: ' + currentPersonId + ' - searchId: ' + searchId.value);
+    console.log('Operação:', operacao, ', ID:', currentGeneroId);
 
     const formData = new FormData(form);
     const genero = {
         id_genero: searchId.value,
         nome_genero: formData.get('nome_genero'),
         descricao_genero: formData.get('descricao_genero'),
-        imagem_genero: formData.get('imagem_genero'),
-        slug_genero: formData.get('slug_genero')        
+        slug_genero: formData.get('slug_genero'),
+
     };
     let response = null;
     try {
@@ -192,7 +196,7 @@ async function salvarOperacao() {
                 body: JSON.stringify(genero)
             });
         } else if (operacao === 'alterar') {
-            response = await fetch(`${API_BASE_URL}/genero/${currentPersonId}`, {
+            response = await fetch(`${API_BASE_URL}/genero/${currentGeneroId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -200,11 +204,11 @@ async function salvarOperacao() {
                 body: JSON.stringify(genero)
             });
         } else if (operacao === 'excluir') {
-            // console.log('Excluindo genero com ID:', currentPersonId);
-            response = await fetch(`${API_BASE_URL}/genero/${currentPersonId}`, {
+            // console.log('Excluindo genero com ID:', currentGeneroId);
+            response = await fetch(`${API_BASE_URL}/genero/${currentGeneroId}`, {
                 method: 'DELETE'
             });
-            console.log('Gênero excluído' + response.status);
+            console.log('Genero excluído' + response.status);
         }
         if (response.ok && (operacao === 'incluir' || operacao === 'alterar')) {
             const novaGenero = await response.json();
@@ -214,7 +218,7 @@ async function salvarOperacao() {
 
         } else if (operacao !== 'excluir') {
             const error = await response.json();
-            mostrarMensagem(error.error || 'Erro ao incluir genero', 'error');
+            mostrarMensagem(error.error || 'Erro ao incluir gênero', 'error');
         } else {
             mostrarMensagem('Gênero excluído com sucesso!', 'success');
             limparFormulario();
@@ -242,8 +246,15 @@ function cancelarOperacao() {
 // Função para carregar lista de generos
 async function carregarGeneros() {
     try {
-        const response = await fetch(`${API_BASE_URL}/genero`);
-    //    debugger
+        const rota = `${API_BASE_URL}/genero`;
+       // console.log("a rota " + rota);
+
+       
+        const response = await fetch(rota);
+     //   console.log(JSON.stringify(response));
+
+
+        //    debugger
         if (response.ok) {
             const generos = await response.json();
             renderizarTabelaGeneros(generos);
@@ -271,9 +282,7 @@ function renderizarTabelaGeneros(generos) {
             <td>${genero.nome_genero}</td>
             <td>${genero.descricao_genero}</td>
             <td>
-                ${genero.imagem_genero 
-                    ? `<img src="${genero.imagem_genero}" alt="${genero.nome_genero}" style="max-width:60px;">` 
-                    : 'Sem imagem'}
+                ${genero.imagem_genero ? `<img src="../img/${genero.imagem_genero}" alt="${nome_genero}" style="max-width:60px;max-height:60px;">` : ''}
             </td>
             <td>${genero.slug_genero}</td>
         `;

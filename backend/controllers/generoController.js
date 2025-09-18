@@ -25,13 +25,13 @@ exports.criarGenero = async (req, res) => {
   //  console.log('Criando genero com dados:', req.body);
   try {
     const { id_genero, nome_genero, descricao_genero, slug_genero} = req.body;
-    const imagem_genero = req.file ? `/img/${req.file.filename}` : null;
+      const imagem_genero = `/img/${slug_genero}.jpg`;
 
 
     // Validação básica
-    if (!nome_genero || !imagem_genero || !slug_genero) {
+    if (!nome_genero || !descricao_genero || !imagem_genero || !slug_genero) {
       return res.status(400).json({
-        error: 'O nome do gênero, sua imagem e slug são obrigatórios'
+        error: 'O nome do gênero, sua descrição, sua imagem e slug são obrigatórios'
       });
     }
 
@@ -42,7 +42,7 @@ exports.criarGenero = async (req, res) => {
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error('Erro ao criar genero:', error);
+    console.error('Erro ao criar gênero:', error);
 
    
 
@@ -86,6 +86,11 @@ exports.obterGenero = async (req, res) => {
 
 exports.atualizarGenero = async (req, res) => {
   try {
+
+    if (!req.body) {
+      return res.status(400).json({ error: 'Corpo da requisição não recebido. Verifique o envio do formulário.' });
+    }
+    
     const id = parseInt(req.params.id);
     const { nome_genero, descricao_genero, slug_genero } = req.body;
 
@@ -96,11 +101,11 @@ exports.atualizarGenero = async (req, res) => {
       [id]
     );
 
+    const imagem_genero = `/img/${slug_genero}.jpg`;
+
     if (existingGeneroResult.rows.length === 0) {
       return res.status(404).json({ error: 'Gênero não encontrado' });
     }
-
-    const imagem_genero = req.file ? `/img/${req.file.filename}` : existingGeneroResult.rows[0].imagem_genero;
 
     // Constrói a query de atualização dinamicamente para campos não nulos
     const currentGenero = existingGeneroResult.rows[0];
@@ -114,12 +119,12 @@ exports.atualizarGenero = async (req, res) => {
     // Atualiza a genero
     const updateResult = await query(
       'UPDATE genero SET nome_genero = $1, descricao_genero = $2, imagem_genero = $3, slug_genero = $4 WHERE id_genero = $5 RETURNING *',
-      [updatedFields.nome_genero, descricao_genero, imagem_genero, slug_genero, id]
+      [updatedFields.nome_genero, updatedFields.descricao_genero, updatedFields.imagem_genero, updatedFields.slug_genero, id]
     );
 
     res.json(updateResult.rows[0]);
   } catch (error) {
-    console.error('Erro ao atualizar genero:', error);
+    console.error('Erro ao atualizar gênero:', error);
 
   
     res.status(500).json({ error: 'Erro interno do servidor' });
@@ -152,7 +157,7 @@ exports.deletarGenero = async (req, res) => {
     // Verifica se é erro de violação de foreign key (dependências)
     if (error.code === '23503') {
       return res.status(400).json({
-        error: 'Não é possível deletar genero com dependências associadas'
+        error: 'Não é possível deletar gênero com dependências associadas'
       });
     }
 

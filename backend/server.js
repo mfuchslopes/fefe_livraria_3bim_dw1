@@ -183,20 +183,23 @@ app.use((req, res) => {
 // Configuração do Multer para salvar imagens em /frontend/img
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../frontend/img')); // pasta onde salvará imagens
+    cb(null, path.join(__dirname, '../img'));
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    // Pega o slug do corpo do formulário
+    let slug = req.body.slug_genero || 'imagem';
+    // Garante que o nome seja seguro
+    slug = slug.replace(/[^a-zA-Z0-9-_]/g, '');
+    cb(null, `${slug}.jpg`);
   }
 });
-const upload = multer({ storage });
 
+const upload = multer({ storage });
 // Middleware para JSON
 app.use(express.json());
 
 // Servir imagens estáticas
-app.use('/img', express.static(path.join(__dirname, '../frontend/img')));
+app.use('/img', express.static(path.join(__dirname, '../img')));
 
 // Rotas de gênero com upload aplicado
 app.use('/genero', (req, res, next) => {

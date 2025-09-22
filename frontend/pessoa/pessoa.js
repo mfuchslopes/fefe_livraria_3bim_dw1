@@ -29,8 +29,35 @@ btnExcluir.addEventListener('click', excluirPessoa);
 btnCancelar.addEventListener('click', cancelarOperacao);
 btnSalvar.addEventListener('click', salvarOperacao);
 
+document.getElementById('checkboxFuncionario').addEventListener('change', () => {
+    if (document.getElementById('checkboxFuncionario').checked) {
+        document.getElementById('checkboxCliente').checked = false; // desmarca cliente
+    }
+    atualizarCamposFuncionario();
+});
+
+document.getElementById('checkboxCliente').addEventListener('change', () => {
+    if (document.getElementById('checkboxCliente').checked) {
+        document.getElementById('checkboxFuncionario').checked = false; // desmarca funcionário
+    }
+    atualizarCamposFuncionario();
+});
+
+
 mostrarBotoes(true, false, false, false, false, false);// mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
 bloquearCampos(false);//libera pk e bloqueia os demais campos
+
+function atualizarCamposFuncionario() {
+    if (document.getElementById('checkboxFuncionario').checked) {
+        document.getElementById('supervisorFuncionario').disabled = false;
+        document.getElementById('departamentoFuncionario').disabled = false;
+    } else {
+        document.getElementById('supervisorFuncionario').disabled = true;
+        document.getElementById('departamentoFuncionario').disabled = true;
+        document.getElementById('supervisorFuncionario').value = '';
+        document.getElementById('departamentoFuncionario').value = '';
+    }
+}
 
 // Função para mostrar mensagens
 function mostrarMensagem(texto, tipo = 'info') {
@@ -41,7 +68,7 @@ function mostrarMensagem(texto, tipo = 'info') {
 }
 
 function bloquearCampos(bloquearPrimeiro) {
-    const inputs = document.querySelectorAll('input, select,checkbox'); // Seleciona todos os inputs e selects do DOCUMENTO
+    const inputs = document.querySelectorAll('input,checkbox'); // Seleciona todos os inputs e selects do DOCUMENTO
     inputs.forEach((input, index) => {
         // console.log(`Input ${index}: ${input.name}, disabled: ${input.disabled}`);
         if (index === 0) {
@@ -245,6 +272,18 @@ async function salvarOperacao() {
 
     // é cliente
     let ehCliente = document.getElementById('checkboxCliente').checked; //true ou false
+    let ehFuncionario = document.getElementById('checkboxFuncionario').checked; //true ou false
+
+    if (!ehFuncionario && !ehCliente) {
+        mostrarMensagem('A pessoa deve ser funcionário ou cliente', 'warning');
+        return;
+    }
+
+    if (ehFuncionario && ehCliente) {
+        mostrarMensagem('A pessoa não pode ser funcionário e cliente ao mesmo tempo', 'warning');
+        return;
+    }
+
 
 
     let responseFuncionario = null;
@@ -519,4 +558,5 @@ async function carregarSupervisores() {
   window.addEventListener("DOMContentLoaded", () => {
     carregarDepartamentos();
     carregarSupervisores();
+    atualizarCamposFuncionario();
     });

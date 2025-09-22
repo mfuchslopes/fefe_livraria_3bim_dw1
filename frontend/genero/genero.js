@@ -127,7 +127,6 @@ function preencherFormulario(genero) {
     searchId.value = genero.id_genero;
     document.getElementById('nome_genero').value = genero.nome_genero || '';
     document.getElementById('descricao_genero').value = genero.descricao_genero || '';
-    document.getElementById('slug_genero').value = genero.slug_genero || '';
 
     // Mostra imagem já salva
     if (genero.imagem_genero) {
@@ -182,7 +181,6 @@ async function salvarOperacao() {
         id_genero: searchId.value,
         nome_genero: formData.get('nome_genero'),
         descricao_genero: formData.get('descricao_genero'),
-        slug_genero: formData.get('slug_genero'),
 
     };
     let response = null;
@@ -211,7 +209,7 @@ async function salvarOperacao() {
             console.log('Genero excluído' + response.status);
         }
         if (response.ok && (operacao === 'incluir' || operacao === 'alterar')) {
-            const novaGenero = await response.json();
+            const novoGenero = await response.json();
             mostrarMensagem('Operação ' + operacao + ' realizada com sucesso!', 'success');
             limparFormulario();
             carregarGeneros();

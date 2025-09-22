@@ -1,7 +1,7 @@
 
 // Configuração da API, IP e porta.
 const API_BASE_URL = 'http://localhost:3001';
-let currentPersonId = null;
+let currentDepartamentoId = null;
 let operacao = null;
 
 // Elementos do DOM
@@ -123,7 +123,7 @@ function preencherFormulario(departamento) {
     console.log(JSON.stringify(departamento));
 
 
-    currentPersonId = departamento.id_dep;
+    currentDepartamentoId = departamento.id_dep;
     searchId.value = departamento.id_dep;
     document.getElementById('nome_dep').value = departamento.nome_dep || '';
 
@@ -134,16 +134,16 @@ function preencherFormulario(departamento) {
 async function incluirDepartamento() {
 
     mostrarMensagem('Digite os dados!', 'success');
-    currentPersonId = searchId.value;
-    // console.log('Incluir nova departamento - currentPersonId: ' + currentPersonId);
+    currentDepartamentoId = searchId.value;
+    // console.log('Incluir nova departamento - currentDepartamentoId: ' + currentDepartamentoId);
     limparFormulario();
-    searchId.value = currentPersonId;
+    searchId.value = currentDepartamentoId;
     bloquearCampos(true);
 
     mostrarBotoes(false, false, false, false, true, true); // mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
     document.getElementById('nome_dep').focus();
     operacao = 'incluir';
-    // console.log('fim nova departamento - currentPersonId: ' + currentPersonId);
+    // console.log('fim nova departamento - currentDepartamentoId: ' + currentDepartamentoId);
 }
 
 // Função para alterar departamento
@@ -158,7 +158,7 @@ async function alterarDepartamento() {
 // Função para excluir departamento
 async function excluirDepartamento() {
     mostrarMensagem('Excluindo departamento...', 'info');
-    currentPersonId = searchId.value;
+    currentDepartamentoId = searchId.value;
     //bloquear searchId
     searchId.disabled = true;
     bloquearCampos(false); // libera os demais campos
@@ -167,7 +167,7 @@ async function excluirDepartamento() {
 }
 
 async function salvarOperacao() {
-    console.log('Operação:', operacao + ' - currentPersonId: ' + currentPersonId + ' - searchId: ' + searchId.value);
+    console.log('Operação:', operacao + ' - currentDepartamentoId: ' + currentDepartamentoId + ' - searchId: ' + searchId.value);
 
     const formData = new FormData(form);
     const departamento = {
@@ -186,7 +186,7 @@ async function salvarOperacao() {
                 body: JSON.stringify(departamento)
             });
         } else if (operacao === 'alterar') {
-            response = await fetch(`${API_BASE_URL}/departamento/${currentPersonId}`, {
+            response = await fetch(`${API_BASE_URL}/departamento/${currentDepartamentoId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -194,8 +194,8 @@ async function salvarOperacao() {
                 body: JSON.stringify(departamento)
             });
         } else if (operacao === 'excluir') {
-            // console.log('Excluindo departamento com ID:', currentPersonId);
-            response = await fetch(`${API_BASE_URL}/departamento/${currentPersonId}`, {
+            // console.log('Excluindo departamento com ID:', currentDepartamentoId);
+            response = await fetch(`${API_BASE_URL}/departamento/${currentDepartamentoId}`, {
                 method: 'DELETE'
             });
             console.log('Departamento excluído' + response.status);

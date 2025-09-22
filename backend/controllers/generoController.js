@@ -24,14 +24,25 @@ exports.listarGeneros = async (req, res) => {
 exports.criarGenero = async (req, res) => {
   //  console.log('Criando genero com dados:', req.body);
   try {
-    const { id_genero, nome_genero, descricao_genero, slug_genero} = req.body;
+    const { id_genero, nome_genero, descricao_genero} = req.body;
+
+      const slug_genero = slugify(nome_genero);
       const imagem_genero = `/img/${slug_genero}.jpg`;
+
+      function slugify(nome) {
+        return nome
+          .toLowerCase()
+          .trim()
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove acentos
+          .replace(/\s+/g, "-") // troca espaços por hífen
+          .replace(/[^a-z0-9-]/g, ""); // remove caracteres especiais
+      }
 
 
     // Validação básica
-    if (!nome_genero || !descricao_genero || !imagem_genero || !slug_genero) {
+    if (!nome_genero || !descricao_genero || !imagem_genero) {
       return res.status(400).json({
-        error: 'O nome do gênero, sua descrição, sua imagem e slug são obrigatórios'
+        error: 'O nome do gênero, sua descrição e sua imagem são obrigatórios'
       });
     }
 
@@ -92,7 +103,7 @@ exports.atualizarGenero = async (req, res) => {
     }
     
     const id = parseInt(req.params.id);
-    const { nome_genero, descricao_genero, slug_genero } = req.body;
+    const { nome_genero, descricao_genero,} = req.body;
 
    
     // Verifica se a genero existe
@@ -101,7 +112,18 @@ exports.atualizarGenero = async (req, res) => {
       [id]
     );
 
+    const slug_genero = slugify(nome_genero);
     const imagem_genero = `/img/${slug_genero}.jpg`;
+
+    function slugify(nome) {
+      return nome
+        .toLowerCase()
+        .trim()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove acentos
+        .replace(/\s+/g, "-") // troca espaços por hífen
+        .replace(/[^a-z0-9-]/g, ""); // remove caracteres especiais
+    }
+
 
     if (existingGeneroResult.rows.length === 0) {
       return res.status(404).json({ error: 'Gênero não encontrado' });

@@ -114,8 +114,8 @@ app.use('/genero', generoRoutes);
 const forma_pagamentoRoutes = require('./routes/forma_pagamentoRoutes');
 app.use('/forma_pagamento', forma_pagamentoRoutes);
 
-const produtoRoutes = require('./routes/produtoRoutes');
-app.use('/produto', produtoRoutes);
+const livroRoutes = require('./routes/livroRoutes');
+app.use('/livro', livroRoutes);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Rota padrão

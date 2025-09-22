@@ -108,6 +108,9 @@ app.use('/cliente', clienteRoutes);
 const departamentoRoutes = require('./routes/departamentoRoutes');
 app.use('/departamento', departamentoRoutes);
 
+const autorRoutes = require('./routes/autorRoutes');
+app.use('/autor', autorRoutes);
+
 const generoRoutes = require('./routes/generoRoutes');
 app.use('/genero', generoRoutes);
 

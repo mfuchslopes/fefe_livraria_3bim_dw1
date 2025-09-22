@@ -80,10 +80,14 @@ app.use('/menu', menuRoutes);
 
 
 
-// const pessoaRoutes = require('./routes/pessoaRoutes');
-// app.use('/pessoa', pessoaRoutes);
+const pessoaRoutes = require('./routes/pessoaRoutes');
+app.use('/pessoa', pessoaRoutes);
 
+const funcionarioRoutes = require('./routes/funcionarioRoutes');
+app.use('/funcionario', funcionarioRoutes);
 
+const clienteRoutes = require('./routes/clienteRoutes');
+app.use('/cliente', clienteRoutes);
 
 // const professorRoutes = require('./routes/professorRoutes');
 // app.use('/professor', professorRoutes);

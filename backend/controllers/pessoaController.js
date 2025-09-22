@@ -23,26 +23,26 @@ exports.listarPessoas = async (req, res) => {
 exports.criarPessoa = async (req, res) => {
   //  console.log('Criando pessoa com dados:', req.body);
   try {
-    const { id_pessoa, nome_pessoa, email_pessoa, senha_pessoa, primeiro_acesso_pessoa = true, data_nascimento } = req.body;
+    const { id_pessoa, cpf, cep, endereco, nome, email, senha} = req.body;
 
     // Validação básica
-    if (!nome_pessoa || !email_pessoa || !senha_pessoa) {
+    if (!nome || !email || !senha || !cpf || !cep || !endereco) {
       return res.status(400).json({
-        error: 'Nome, email e senha são obrigatórios'
+        error: 'Nome, cpf, cep, endereço, email e senha são obrigatórios'
       });
     }
 
     // Validação de email básica
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email_pessoa)) {
+    if (!emailRegex.test(email)) {
       return res.status(400).json({
         error: 'Formato de email inválido'
       });
     }
 
     const result = await query(
-      'INSERT INTO pessoa (id_pessoa, nome_pessoa, email_pessoa, senha_pessoa, primeiro_acesso_pessoa, data_nascimento) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [id_pessoa, nome_pessoa, email_pessoa, senha_pessoa, primeiro_acesso_pessoa, data_nascimento]
+      'INSERT INTO pessoa (id_pessoa, cpf, cep, endereco, nome, email, senha) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [id_pessoa, cpf, cep, endereco, nome, email, senha]
     );
 
     res.status(201).json(result.rows[0]);
@@ -50,7 +50,7 @@ exports.criarPessoa = async (req, res) => {
     console.error('Erro ao criar pessoa:', error);
 
     // Verifica se é erro de email duplicado (constraint unique violation)
-    if (error.code === '23505' && error.constraint === 'pessoa_email_pessoa_key') {
+    if (error.code === '23505' && error.constraint === 'pessoa_email_key') {
       return res.status(400).json({
         error: 'Email já está em uso'
       });
@@ -94,12 +94,12 @@ exports.obterPessoa = async (req, res) => {
 exports.atualizarPessoa = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { nome_pessoa, email_pessoa, senha_pessoa, primeiro_acesso_pessoa, data_nascimento } = req.body;
+    const { cpf, cep, endereco, nome, email, senha } = req.body;
 
     // Validação de email se fornecido
-    if (email_pessoa) {
+    if (email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email_pessoa)) {
+      if (!emailRegex.test(email)) {
         return res.status(400).json({
           error: 'Formato de email inválido'
         });
@@ -118,17 +118,18 @@ exports.atualizarPessoa = async (req, res) => {
     // Constrói a query de atualização dinamicamente para campos não nulos
     const currentPerson = existingPersonResult.rows[0];
     const updatedFields = {
-      nome_pessoa: nome_pessoa !== undefined ? nome_pessoa : currentPerson.nome_pessoa,
-      email_pessoa: email_pessoa !== undefined ? email_pessoa : currentPerson.email_pessoa,
-      senha_pessoa: senha_pessoa !== undefined ? senha_pessoa : currentPerson.senha_pessoa,
-      primeiro_acesso_pessoa: primeiro_acesso_pessoa !== undefined ? primeiro_acesso_pessoa : currentPerson.primeiro_acesso_pessoa,
-      data_nascimento: data_nascimento !== undefined ? data_nascimento : currentPerson.data_nascimento
+      cpf: cpf !== undefined ? cpf : currentPerson.cpf,
+      cep: cep !== undefined ? cep : currentPerson.cep,
+      endereco: endereco !== undefined ? endereco : currentPerson.endereco,
+      nome: nome !== undefined ? nome : currentPerson.nome,
+      email: email !== undefined ? email : currentPerson.email,
+      senha: senha !== undefined ? senha : currentPerson.senha,
     };
 
     // Atualiza a pessoa
     const updateResult = await query(
-      'UPDATE pessoa SET nome_pessoa = $1, email_pessoa = $2, senha_pessoa = $3, primeiro_acesso_pessoa = $4, data_nascimento = $5 WHERE id_pessoa = $6 RETURNING *',
-      [updatedFields.nome_pessoa, updatedFields.email_pessoa, updatedFields.senha_pessoa, updatedFields.primeiro_acesso_pessoa, updatedFields.data_nascimento, id]
+      'UPDATE pessoa SET cpf = $1, cep = $2, endereco = $3, nome = $4, email = $5, senha = $6 WHERE id_pessoa = $7 RETURNING *',
+      [updatedFields.cpf, updatedFields.cep, updatedFields.endereco, updatedFields.nome, updatedFields.email, updatedFields.senha, id]
     );
 
     res.json(updateResult.rows[0]);
@@ -136,7 +137,7 @@ exports.atualizarPessoa = async (req, res) => {
     console.error('Erro ao atualizar pessoa:', error);
 
     // Verifica se é erro de email duplicado
-    if (error.code === '23505' && error.constraint === 'pessoa_email_pessoa_key') {
+    if (error.code === '23505' && error.constraint === 'pessoa_email_key') {
       return res.status(400).json({
         error: 'Email já está em uso por outra pessoa'
       });
@@ -190,7 +191,7 @@ exports.obterPessoaPorEmail = async (req, res) => {
     }
 
     const result = await query(
-      'SELECT * FROM pessoa WHERE email_pessoa = $1',
+      'SELECT * FROM pessoa WHERE email = $1',
       [email]
     );
 
@@ -234,13 +235,13 @@ exports.atualizarSenha = async (req, res) => {
     const person = personResult.rows[0];
 
     // Verificação básica da senha atual (em produção, use hash)
-    if (person.senha_pessoa !== senha_atual) {
+    if (person.senha !== senha_atual) {
       return res.status(400).json({ error: 'Senha atual incorreta' });
     }
 
     // Atualiza apenas a senha
     const updateResult = await query(
-      'UPDATE pessoa SET senha_pessoa = $1 WHERE id_pessoa = $2 RETURNING id_pessoa, nome_pessoa, email_pessoa, primeiro_acesso_pessoa, data_nascimento',
+      'UPDATE pessoa SET senha = $1 WHERE id_pessoa = $2 RETURNING id_pessoa, cpf, cep, endereco, nome, email',
       [nova_senha, id]
     );
 

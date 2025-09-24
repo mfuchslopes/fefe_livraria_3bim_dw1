@@ -196,9 +196,11 @@ app.use((req, res) => {
 // Configuração do Multer para salvar imagens em /frontend/img
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    console.log(path.join(__dirname, '../img'))
     cb(null, path.join(__dirname, '../img'));
   },
   filename: (req, file, cb) => {
+    console.log(file)
     // Pega o slug do corpo do formulário
     let slug = req.body.slug_genero || 'imagem';
     // Garante que o nome seja seguro

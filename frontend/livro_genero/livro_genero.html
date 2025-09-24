@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD - Avaliação</title>
+  <link rel="stylesheet" href="/livro_genero/livro_genero.css">
+</head>
+
+<body>
+  <header>
+    <h1>CRUD Livros dos Generoes</h1>
+  </header>
+  <main>
+    <div>
+      <label for="generoSelect">Selecione um Gênero:</label>
+      <select id="generoSelect">
+        <option value="">-- Selecione --</option>
+      </select>
+    </div>
+    <div class="tablesContainer">
+      <div class="tableContainer" id="genero">
+        <h3>Livros do Gênero:</h3>
+        <div id="genero-list"></div>
+        <div>
+          <input onclick="salvarLivrosDoGenero()" type="button" value="Salvar">
+        </div>
+      </div>
+
+      <div class="tableContainer" id="disponiveis">
+        <h3>Livros:</h3>
+        <div id="disponiveis-list">
+          <!-- <div class="questao" draggable="true" data-id="1">Questão 1</div>
+          <div class="questao" draggable="true" data-id="2">Questão 2</div>
+          <div class="questao" draggable="true" data-id="3">Questão 3</div>
+          <div class="questao" draggable="true" data-id="4">Questão 4</div> -->
+        </div>
+      </div>
+    </div>
+  </main>
+  
+
+    <div id="messageContainer" class="message-container"></div>
+  <script src="/livro_genero/livro_genero.js"></script>
+</body>
+
+</html>

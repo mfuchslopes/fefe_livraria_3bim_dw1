@@ -5,31 +5,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CRUD - Avaliação</title>
-  <link rel="stylesheet" href="/avaliacaoHasQuestao/avaliacaoHasQuestao.css">
+  <link rel="stylesheet" href="/livro_autor/livro_autor.css">
 </head>
 
 <body>
   <header>
-    <h1>CRUD Questões da Avaliação</h1>
+    <h1>CRUD Livros dos Autores</h1>
   </header>
   <main>
     <div>
-      <label for="avaliacaoSelect">Selecione uma Avaliação:</label>
-      <select id="avaliacaoSelect" onchange="handleAvaliacaoChange()">
+      <label for="autorSelect">Selecione um Autor:</label>
+      <select id="autorSelect">
         <option value="">-- Selecione --</option>
       </select>
     </div>
     <div class="tablesContainer">
-      <div class="tableContainer" id="avaliacao">
-        <h3>Questões da Avaliação</h3>
-        <div id="avaliacao-list"></div>
+      <div class="tableContainer" id="autor">
+        <h3>Livros do Autor:</h3>
+        <div id="autor-list"></div>
         <div>
-          <input onclick="salvarQuestoesDaAvaliacao()" type="button" value="Salvar">
+          <input onclick="salvarLivrosDoAutor()" type="button" value="Salvar">
         </div>
       </div>
 
       <div class="tableContainer" id="disponiveis">
-        <h3>Questões disponíveis</h3>
+        <h3>Livros:</h3>
         <div id="disponiveis-list">
           <!-- <div class="questao" draggable="true" data-id="1">Questão 1</div>
           <div class="questao" draggable="true" data-id="2">Questão 2</div>
@@ -39,7 +39,10 @@
       </div>
     </div>
   </main>
-  <script src="/avaliacaoHasQuestao/avaliacaoHasQuestao.js"></script>
+  
+
+    <div id="messageContainer" class="message-container"></div>
+  <script src="/livro_autor/livro_autor.js"></script>
 </body>
 
 </html>

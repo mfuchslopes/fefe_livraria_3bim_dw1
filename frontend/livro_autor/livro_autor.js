@@ -2,97 +2,97 @@ const API_BASE_URL = 'http://localhost:3001';
 
 
 const disponiveisList = document.getElementById("disponiveis-list");
-const avaliacaoList = document.getElementById("avaliacao-list");
-const avaliacaoContainer = document.getElementById("avaliacao");
+const autorList = document.getElementById("autor-list");
+const autorContainer = document.getElementById("autor");
 const disponiveisContainer = document.getElementById("disponiveis");
 
-let avaliacaoId = null;
-// Carregar lista de avaliacoes ao inicializar
+let autorId = null;
+// Carregar lista de autores ao inicializar
 document.addEventListener('DOMContentLoaded', () => {
-    selectAvaliacoes();
-    carregarQuestoesAvaliacao(avaliacaoId);
-   // carregarAvaliacoes();
-   carregarQuestoes(); //todas as questões
+    selectAutores();
+    carregarLivrosAutor(autorId);
+   // carregarAutores();
+   carregarLivros(); //todas as livros
 });
 
 
-function salvarQuestoesDaAvaliacao() {
-    alert('Salvando questões da avaliação...');
-    if (!avaliacaoId) {
-        mostrarMensagem('Selecione uma avaliação antes de salvar', 'error');
+function salvarLivrosDoAutor() {
+    alert('Salvando livros do autor...');
+    if (!autorId) {
+        mostrarMensagem('Selecione umo autor antes de salvar', 'error');
         return;
     }
 
-    const questoesIds = Array.from(avaliacaoList.children).map(item => item.getAttribute('data-id'));
+    const livrosIds = Array.from(autorList.children).map(item => item.getAttribute('data-id'));
 
-    fetch(`${API_BASE_URL}/avaliacaoHasQuestao/${avaliacaoId}`, {
+    fetch(`${API_BASE_URL}/livro_autor/${autorId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ questoes: questoesIds })
+        body: JSON.stringify({ livros: livrosIds })
     })
     .then(response => {
         if (response.ok) {
-            mostrarMensagem('Questões salvas com sucesso!', 'success');
+            mostrarMensagem('Livros salvas com sucesso!', 'success');
         } else {
-            throw new Error('Erro ao salvar questões');
+            throw new Error('Erro ao salvar livros');
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        mostrarMensagem('Erro ao salvar questões', 'error');
+        mostrarMensagem('Erro ao salvar livros', 'error');
     });
 }
 
-async function selectAvaliacoes() {
+async function selectAutores() {
     try {
-        const response = await fetch(`${API_BASE_URL}/avaliacao`);
+        const response = await fetch(`${API_BASE_URL}/autor`);
         if (response.ok) {
-            const avaliacoes = await response.json();
-            const select = document.getElementById('avaliacaoSelect');
-            select.innerHTML = '<option value="">Selecione uma avaliação</option>'; // Limpa e adiciona opção padrão
+            const autores = await response.json();
+            const select = document.getElementById('autorSelect');
+            select.innerHTML = '<option value="">Selecione umo autor</option>'; // Limpa e adiciona opção padrão
 
-            avaliacoes.forEach(avaliacao => {
+            autores.forEach(autor => {
                 const option = document.createElement('option');
-                option.value = avaliacao.id_avaliacao;
-                option.textContent = avaliacao.descricao_avaliacao;
+                option.value = autor.id_autor;
+                option.textContent = autor.nome_autor;
                 select.appendChild(option);
             });
 
-            // Adiciona listener para carregar questões da avaliação selecionada
+            // Adiciona listener para carregar livros do autor selecionada
             select.addEventListener('change', async (event) => {
-                avaliacaoId = event.target.value;
-                if (avaliacaoId) {
-                    await carregarQuestoesAvaliacao(avaliacaoId);
+                autorId = event.target.value;
+                if (autorId) {
+                    await carregarLivrosAutor(autorId);
                 } else {
-                    avaliacaoList.innerHTML = ''; // Limpa a lista se nenhuma avaliação for selecionada
+                    autorList.innerHTML = ''; // Limpa a lista se nenhumo autor for selecionada
                 }
             });
         } else {
-            throw new Error('Erro ao carregar avaliações');
+            throw new Error('Erro ao carregar autores');
         }
     } catch (error) {
         console.error('Erro:', error);
-        mostrarMensagem('Erro ao carregar lista de avaliações', 'error');
+        mostrarMensagem('Erro ao carregar lista de autores', 'error');
     }
 }
 
-// Função para carregar questões da avaliação selecionada
-async function carregarQuestoesAvaliacao(avaliacaoId) {
+// Função para carregar livros do autor selecionada
+async function carregarLivrosAutor(autorId) {
     try {
-        let rotaAvaliacaoHasQuestao = API_BASE_URL + '/avaliacaoHasQuestao/' + avaliacaoId;
-        const response = await fetch(rotaAvaliacaoHasQuestao);
+        let rotaLivro_autor = API_BASE_URL + '/livro_autor/' + autorId;
+        const response = await fetch(rotaLivro_autor);
         if (response.ok) {
-            const questoes = await response.json();
-            avaliacaoList.innerHTML = ''; // Limpa a lista antes de adicionar novos itens
+            const livros = await response.json();
+            autorList.innerHTML = ''; // Limpa a lista antes de adicionar novos itens
 
-            questoes.forEach(questao => {
+            livros.forEach(livro => {
                 const div = document.createElement('div');
-                div.className = 'questao';
-                div.setAttribute('draggable', 'false'); // Não permite arrastar questões já na avaliação
-                div.setAttribute('data-id', questao.id_questao);
-                div.textContent = questao.texto_questao;
+                div.className = 'livro';
+                div.setAttribute('draggable', 'false'); // Não permite arrastar livros já no autor
+                div.setAttribute('data-id', livro.id_livro);
+                div.textContent = livro.nome_livro;
 
                 // Adiciona botão de excluir
                 const btn = document.createElement('button');
@@ -100,37 +100,37 @@ async function carregarQuestoesAvaliacao(avaliacaoId) {
                 btn.addEventListener('click', () => {
                     div.remove();
                     // Reativa o item original na lista de disponíveis
-                    const originalItem = document.querySelector(`#disponiveis-list .questao[data-id="${questao.id_questao}"]`);
+                    const originalItem = document.querySelector(`#disponiveis-list .livro[data-id="${livro.id_livro}"]`);
                     if (originalItem) {
                         originalItem.style.display = 'flex';
                     }
                 });
 
                 div.appendChild(btn);
-                avaliacaoList.appendChild(div);
+                autorList.appendChild(div);
             });
         } else {
-            throw new Error('Erro ao carregar questões da avaliação');
+            throw new Error('Erro ao carregar livros do autor');
         }
     } catch (error) {
         console.error('Erro:', error);
-        mostrarMensagem('Erro ao carregar questões da avaliação', 'error');
+        mostrarMensagem('Erro ao carregar livros do autor', 'error');
     }
 }
 
-async function carregarQuestoes(){
+async function carregarLivros(){
     try {
-        const response = await fetch(`${API_BASE_URL}/questao`);
+        const response = await fetch(`${API_BASE_URL}/livro`);
         if (response.ok) {
-            const questoes = await response.json();
+            const livros = await response.json();
             disponiveisList.innerHTML = ''; // Limpa a lista antes de adicionar novos itens
             
-          questoes.forEach(questao => {
+          livros.forEach(livro => {
                 const div = document.createElement('div');
-                div.className = 'questao';
+                div.className = 'livro';
                 div.setAttribute('draggable', 'true');
-                div.setAttribute('data-id', questao.id_questao);
-                div.textContent = questao.texto_questao;
+                div.setAttribute('data-id', livro.id_livro);
+                div.textContent = livro.nome_livro;
 
                 // Adiciona event listeners para drag and drop
                 addDragListeners(div);
@@ -138,11 +138,11 @@ async function carregarQuestoes(){
                 disponiveisList.appendChild(div);
             }); 
         } else {
-            throw new Error('Erro ao carregar questões');
+            throw new Error('Erro ao carregar livros');
         }
     } catch (error) {
         console.error('Erro:', error);
-        mostrarMensagem('Erro ao carregar lista de questões', 'error');
+        mostrarMensagem('Erro ao carregar lista de livros', 'error');
     }
 }   
                 
@@ -157,21 +157,21 @@ function mostrarMensagem(mensagem, tipo) {
         mensagemDiv.className = '';
     }, 3000);
 }
-// Função para carregar lista de avaliacao
-async function carregarAvaliacoes() {
+// Função para carregar lista de autor
+async function carregarAutores() {
     try {
-        const response = await fetch(`${API_BASE_URL}/avaliacao`);
+        const response = await fetch(`${API_BASE_URL}/autor`);
         //    debugger
         if (response.ok) {
-            const avaliacoes = await response.json();
-            avaliacaoList.innerHTML = ''; // Limpa a lista antes de adicionar novos itens
+            const autores = await response.json();
+            autorList.innerHTML = ''; // Limpa a lista antes de adicionar novos itens
 
-            avaliacoes.forEach(avaliacao => {
+            autores.forEach(autor => {
                 const div = document.createElement('div');
-                div.className = 'questao';
+                div.className = 'autor';
                 div.setAttribute('draggable', 'true');
-                div.setAttribute('data-id', avaliacao.id_avaliacao);
-                div.textContent = avaliacao.descricao_avaliacao;
+                div.setAttribute('data-id', autor.id_autor);
+                div.textContent = autor.nome_autor;
 
                 // Adiciona event listeners para drag and drop
                 addDragListeners(div);
@@ -182,11 +182,11 @@ async function carregarAvaliacoes() {
 
 
         } else {
-            throw new Error('Erro ao carregar avaliacoes');
+            throw new Error('Erro ao carregar autores');
         }
     } catch (error) {
         console.error('Erro:', error);
-        mostrarMensagem('Erro ao carregar lista de avaliacoes', 'error');
+        mostrarMensagem('Erro ao carregar lista de autores', 'error');
     }
 }
 
@@ -210,13 +210,13 @@ function addDragListeners(item) {
     });
 }
 
-// Inicializa os listeners para as questões iniciais
-document.querySelectorAll(".questao").forEach(item => {
+// Inicializa os listeners para as livros iniciais
+document.querySelectorAll(".livro").forEach(item => {
     addDragListeners(item);
 });
 
 // Configura os containers
-const containers = [avaliacaoContainer, disponiveisContainer];
+const containers = [autorContainer, disponiveisContainer];
 
 containers.forEach(container => {
     container.addEventListener("dragover", e => {
@@ -234,9 +234,9 @@ containers.forEach(container => {
 
         if (draggedItem) {
             // Se estiver soltando no container de avaliação
-            if (container.id === "avaliacao") {
-                // Verifica se a questão já existe na avaliação
-                const existingQuestion = Array.from(avaliacaoList.children).find(
+            if (container.id === "autor") {
+                // Verifica se a questão já existe no autor
+                const existingQuestion = Array.from(autorList.children).find(
                     item => item.getAttribute("data-id") === draggedItem.getAttribute("data-id")
                 );
 
@@ -251,14 +251,14 @@ containers.forEach(container => {
                     btn.addEventListener("click", () => {
                         clone.remove();
                         // Reativa o item original na lista de disponíveis
-                        const originalItem = document.querySelector(`#disponiveis-list .questao[data-id="${draggedItem.getAttribute("data-id")}"]`);
+                        const originalItem = document.querySelector(`#disponiveis-list .livro[data-id="${draggedItem.getAttribute("data-id")}"]`);
                         if (originalItem) {
                             originalItem.style.display = "flex";
                         }
                     });
 
                     clone.appendChild(btn);
-                    avaliacaoList.appendChild(clone);
+                    autorList.appendChild(clone);
                 }
             }
         }

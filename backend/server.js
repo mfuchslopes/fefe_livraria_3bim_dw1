@@ -89,6 +89,9 @@ app.use('/funcionario', funcionarioRoutes);
 const clienteRoutes = require('./routes/clienteRoutes');
 app.use('/cliente', clienteRoutes);
 
+const livro_autorRoutes = require('./routes/livro_autorRoutes');
+app.use('/livro_autor', livro_autorRoutes);
+
 // const professorRoutes = require('./routes/professorRoutes');
 // app.use('/professor', professorRoutes);
 

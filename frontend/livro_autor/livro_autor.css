@@ -439,7 +439,7 @@ footer {
     padding: 1rem;
 }
 
-.infoAvaliacao {
+.infoAutor {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -452,7 +452,7 @@ footer {
     box-sizing: border-box;
 }
 
-.infoAvaliacao span {
+.infoAutor span {
     flex: 1;
     text-align: center;
     white-space: nowrap;
@@ -462,7 +462,7 @@ footer {
 
 
 
-.questao {
+.livro {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -474,7 +474,7 @@ footer {
     cursor: grab;
 }
 
-.questao button {
+.livro button {
     margin-left: 10px;
     background: red;
     color: white;
@@ -484,6 +484,6 @@ footer {
     cursor: pointer;
 }
 
-/* .questao.dragging {
+/* .livro.dragging {
     opacity: 0.5;
 } */

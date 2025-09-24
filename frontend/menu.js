@@ -64,3 +64,59 @@ async function logout2() {
 }
 
 // usuarioAutorizado();
+document.addEventListener('DOMContentLoaded', () => {
+  carregarGeneros();
+});
+
+function carregarGeneros() {
+  fetch(`${API_BASE_UR}/genero/`)
+    .then(res => res.json())
+    .then(generos => {
+      const container = document.getElementById('generos-container');
+      container.innerHTML = '<h2>Escolha um gênero:</h2><div class="generos-list"></div>';
+      const lista = container.querySelector('.generos-list');
+      generos.forEach(genero => {
+        const btn = document.createElement('button');
+        btn.className = 'genero-btn';
+        btn.textContent = genero.nome;
+        btn.onclick = () => carregarLivrosPorGenero(genero.id_genero, genero.nome);
+        lista.appendChild(btn);
+      });
+    });
+}
+
+function carregarLivrosPorGenero(idGenero, nomeGenero) {
+  fetch(`${API_BASE_UR}/livro_genero/livrosPorGenero/${idGenero}`)
+    .then(res => res.json())
+    .then(livros => {
+      const container = document.getElementById('livros-container');
+      container.innerHTML = `<h2 class="titulo-genero">${nomeGenero}</h2><div class="livros-list"></div>`;
+      const lista = container.querySelector('.livros-list');
+      if (livros.length === 0) {
+        lista.innerHTML = '<p class="sem-livros">Nenhum livro encontrado para este gênero.</p>';
+        return;
+      }
+      livros.forEach(livro => {
+        const card = document.createElement('div');
+        card.className = 'livro-card';
+        card.innerHTML = `
+          <img src="${livro.imagem || 'img/classico.jpg'}" alt="${livro.titulo}" class="livro-img">
+          <div class="livro-info">
+            <h3>${livro.titulo}</h3>
+            <p class="livro-preco">R$${livro.preco.toFixed(2)}</p>
+            <p>${livro.descricao || ''}</p>
+            <button class="btn-carrinho">Adicionar ao Carrinho</button>
+          </div>
+        `;
+        lista.appendChild(card);
+      });
+    });
+}
+
+function handleUserAction(value) {
+  if (value === 'gerenciar-conta') {
+    window.location.href = 'pessoa/pessoa.html';
+  } else if (value === 'sair') {
+    window.location.href = 'login/login.html';
+  }
+}

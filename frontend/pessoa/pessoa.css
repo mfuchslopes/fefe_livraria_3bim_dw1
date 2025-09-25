@@ -287,6 +287,33 @@ footer {
     text-align: center;
 }
 
+select{
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1.5px solid #6b5e3e; /* dourado escuro */
+    background: rgba(35,43,43,0.6); /* fundo escuro translúcido */
+    color: #e6d6b8; /* texto claro */
+    font-size: 1rem;
+    transition: border 0.2s, box-shadow 0.2s, background 0.2s;
+    box-shadow: 0 2px 12px #0a0e0e22;
+    margin:1rem;
+}
+
+select:focus {
+    outline: none;
+    border-color: #bfa76f; /* destaque dourado */
+    background: rgba(35,43,43,0.7);
+    box-shadow: 0 0 0 3px #bfa76f44;
+}
+
+input checkbox {
+    transform: scale(1.2);
+    margin-right: 0.5rem;
+    accent-color: #bfa76f; /* cor dourada */
+}
+
+
 /* Responsividade */
 @media (max-width: 900px) {
     main {
@@ -326,7 +353,7 @@ footer {
     .message-container {
         top: 10px;
         right: 10px;
-        left: 10px;
+        left: 10px; 
     }
 }
 

@@ -121,8 +121,6 @@ app.use('/autor', autorRoutes);
 const generoRoutes = require('./routes/generoRoutes');
 app.use('/genero', generoRoutes);
 
-const forma_pagamentoRoutes = require('./routes/forma_pagamentoRoutes');
-app.use('/forma_pagamento', forma_pagamentoRoutes);
 
 const livroRoutes = require('./routes/livroRoutes');
 app.use('/livro', livroRoutes);

@@ -4,5 +4,23 @@
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "pg": "^8.16.3"
-  }
+  },
+  "name": "fefe_livraria_3bim_dw1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mfuchslopes/fefe_livraria_3bim_dw1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mfuchslopes/fefe_livraria_3bim_dw1/issues"
+  },
+  "homepage": "https://github.com/mfuchslopes/fefe_livraria_3bim_dw1#readme",
+  "description": ""
 }

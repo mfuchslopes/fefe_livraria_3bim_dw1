@@ -33,6 +33,7 @@ app.use(cookieParser());
 app.use((req, res, next) => {
   const allowedOrigins = ['http://127.0.0.1:5500','http://localhost:5500', 'http://127.0.0.1:5501', 'http://localhost:3000', 'http://localhost:3001'];
   const origin = req.headers.origin;
+  console.log('Origin recebida:', origin); 
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
   }

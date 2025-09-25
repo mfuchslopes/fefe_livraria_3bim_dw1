@@ -126,3 +126,30 @@ function handleUserAction(value) {
     window.location.href = 'login/login.html';
   }
 }
+
+const menuLinks = document.querySelectorAll('.menu-link');
+
+menuLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault(); // evita que o link navegue
+    
+    const submenu = link.nextElementSibling; // pega o submenu correspondente
+
+    if (!submenu) return;
+
+    // Fecha todos os outros submenus
+    document.querySelectorAll('.nav__submenu').forEach(sm => {
+      if (sm !== submenu) sm.classList.remove('show');
+    });
+
+    // Alterna o submenu atual
+    submenu.classList.toggle('show');
+  });
+});
+
+// Opcional: clicar fora do menu fecha todos os submenus
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.nav__menu-item')) {
+    document.querySelectorAll('.nav__submenu').forEach(sm => sm.classList.remove('show'));
+  }
+});

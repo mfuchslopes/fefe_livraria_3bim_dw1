@@ -5,27 +5,47 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: 'Merriweather', serif;
-    background: linear-gradient(135deg, #232b2b 0%, #1a1f1f 100%);
-    color: #e6d6b8; /* dourado envelhecido */
-    text-align: center;
-    min-height: 100vh;
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+    background: #111; /* fundo escuro */
+}
+
+canvas#network {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* canvas atrás de conteúdo */
+}
+
+header {
+    position:relative;
+    z-index: 10; /* cabeçalho acima do canvas */
+}
+
+main, footer {
+    position: relative;
+    z-index: 1;
 }
 
 /* Cabeçalho */
 header {
     padding: 0.5rem 0 0.5rem 0;
-    background: linear-gradient(90deg, #232b2b 60%, #2e4057 100%);
-    box-shadow: 0 4px 24px #0a0e0e99;
-    border-bottom: 2px solid #bfa76f;
+    background: rgba(35,43,43,0.6); /* transparente com efeito high-tech */
+    backdrop-filter: blur(8px);      /* efeito mágico de vidro fosco */
+    box-shadow: 0 4px 24px #0a0e0e88;
+    border-bottom: 2px solid #bfa76f66;
 }
 
 header h1, .topo h3 {
     font-size: 2.3rem;
-    color: #bfa76f; /* dourado envelhecido */
+    color: #bfa76f;
     letter-spacing: 3px;
-    text-shadow: 0 2px 8px #232b2b88;
+    text-shadow: 0 2px 10px #0a0e0ebb, 0 0 12px #bfa76f55;
 }
 
 .topo {
@@ -37,20 +57,21 @@ header h1, .topo h3 {
 }
 
 select {
-    background: #2e4057; /* azul petróleo */
-    color: #e6d6b8;      /* dourado envelhecido */
-    border: 1px solid #bfa76f;
+    background: rgba(46, 64, 87, 0.25);
+    color: #e6d6b8;
+    border: 1px solid #bfa76f55;
     padding: 0.5rem;
     border-radius: 8px;
     font-family: inherit;
-    box-shadow: 0 2px 8px #232b2b44;
+    box-shadow: 0 2px 12px #0a0e0e66;
 }
 
 /* Menu principal */
 .nav {
-    background: linear-gradient(90deg, #232b2b 60%, #bfa76f 100%);
+    background: rgba(35,43,43,0.6);
+    backdrop-filter: blur(8px);
     padding: 0.7rem 0;
-    border-top: 1px solid #bfa76f;
+    border-top: 1px solid #bfa76f66;
 }
 
 .nav__menu {
@@ -58,10 +79,6 @@ select {
     display: flex;
     justify-content: center;
     gap: 2.5rem;
-}
-
-.nav__menu-item {
-    position: relative;
 }
 
 .nav__menu-item a {
@@ -72,14 +89,14 @@ select {
     display: block;
     border-radius: 10px;
     transition: background 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 8px #bfa76f22;
+    box-shadow: 0 2px 12px #bfa76f33;
     background: rgba(46, 64, 87, 0.15);
 }
 
 .nav__menu-item a:hover {
-    background: linear-gradient(90deg, #bfa76f 60%, #232b2b 100%);
-    color: #232b2b;
-    box-shadow: 0 4px 16px #bfa76f66;
+    background: rgba(191,167,111,0.6);
+    color: #111;
+    box-shadow: 0 4px 20px #bfa76f77;
 }
 
 /* Submenu */
@@ -87,15 +104,15 @@ select {
     list-style: none;
     position: absolute;
     top: 100%;
-    left: 0;
-    background: #232b2b;
-    border: 1px solid #bfa76f;
+    background: rgba(35,43,43,0.7);
+    backdrop-filter: blur(8px);
+    border: 1px solid #bfa76f55;
     display: none;
     min-width: 200px;
     text-align: left;
     z-index: 10;
     border-radius: 0 0 12px 12px;
-    box-shadow: 0 8px 24px #2e405788;
+    box-shadow: 0 8px 24px #0a0e0e66;
 }
 
 .nav__submenu-item a {
@@ -105,72 +122,62 @@ select {
     border-radius: 0 0 12px 12px;
     transition: background 0.2s, color 0.2s;
     background: rgba(46, 64, 87, 0.10);
+    box-shadow: 0 2px 8px #0a0e0e44;
 }
 
 .nav__submenu-item a:hover {
-    background: linear-gradient(90deg, #bfa76f 60%, #232b2b 100%);
-    color: #232b2b;
+    background: rgba(191,167,111,0.5);
+    color: #111;
 }
 
-/* Hover para mostrar submenu */
-.nav__menu-item:hover .nav__submenu {
-    display: block;
+.nav__submenu {
+    display: none; /* escondido por padrão */
+}
+.nav__submenu.show {
+    display: block; /* classe que será adicionada via JS */
 }
 
-/* Botão dos gêneros */
+/* Botões */
 .genero-btn, button {
     margin: 1rem;
     padding: 0.6rem 1.7rem;
-    background: linear-gradient(90deg, #2e4057 60%, #bfa76f 100%);
-    color: #232b2b;
-    border: 2px solid #bfa76f;
+    background: rgba(46,64,87,0.25);
+    color: #bfa76f;
+    border: 2px solid #bfa76f66;
     border-radius: 12px;
     cursor: pointer;
     font-size: 1.15rem;
     font-weight: 600;
-    box-shadow: 0 2px 8px #bfa76f44;
+    box-shadow: 0 4px 16px #0a0e0e55;
     transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    backdrop-filter: blur(6px);
 }
 
 .genero-btn:hover, button:hover {
-    background: linear-gradient(90deg, #bfa76f 60%, #2e4057 100%);
-    color: #e6d6b8;
-    box-shadow: 0 4px 16px #bfa76f88;
+    background: rgba(191,167,111,0.5);
+    color: #111;
+    box-shadow: 0 8px 32px #bfa76f55;
 }
 
-/* Seção de gêneros */
-#generos-container h2 {
+/* Seção de gêneros e livros */
+#generos-container h2,
+.titulo-genero,
+.sem-livros {
     color: #bfa76f;
-    margin-bottom: 1.2rem;
-    font-size: 1.6rem;
-    text-shadow: 0 2px 8px #232b2b44;
+    text-shadow: 0 2px 12px #0a0e0e77, 0 0 12px #bfa76f44;
 }
 
-.generos-list {
-    display: flex;
-    gap: 1.2rem;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: 2.2rem;
-}
-
-/* Seção de livros */
-.titulo-genero {
-    color: #bfa76f;
-    font-size: 2.1rem;
-    margin-bottom: 1.2rem;
-    text-shadow: 0 2px 8px #232b2b44;
-}
-
+.generos-list,
 .livros-list {
     display: flex;
-    gap: 2.2rem;
+    gap: 1.2rem;
     flex-wrap: wrap;
     justify-content: center;
 }
 
 .livro-card {
-    background: linear-gradient(135deg, #232b2b 60%, #2e4057 100%);
+    background: rgba(35,43,43,0.6);
+    backdrop-filter: blur(8px);
     border-radius: 16px;
     box-shadow: 0 8px 32px #bfa76f33;
     padding: 1.5rem;
@@ -179,11 +186,12 @@ select {
     flex-direction: column;
     align-items: center;
     transition: transform 0.2s, box-shadow 0.2s;
-    border: 1.5px solid #bfa76f;
+    border: 1.5px solid #bfa76f55;
 }
+
 .livro-card:hover {
     transform: scale(1.05);
-    box-shadow: 0 16px 48px #bfa76f99;
+    box-shadow: 0 16px 48px #bfa76f77;
     border-color: #e6d6b8;
 }
 
@@ -193,8 +201,8 @@ select {
     object-fit: cover;
     border-radius: 10px;
     margin-bottom: 1.2rem;
-    border: 2px solid #bfa76f;
-    box-shadow: 0 4px 16px #232b2b88;
+    border: 2px solid #bfa76f55;
+    box-shadow: 0 4px 16px #0a0e0e44;
 }
 
 .livro-info h3 {
@@ -212,8 +220,8 @@ select {
 }
 
 .btn-carrinho {
-    background: linear-gradient(90deg, #bfa76f 60%, #2e4057 100%);
-    color: #232b2b;
+    background: rgba(191,167,111,0.5);
+    color: #111;
     border: none;
     border-radius: 8px;
     padding: 0.6rem 1.2rem;
@@ -221,31 +229,31 @@ select {
     cursor: pointer;
     font-size: 1.05rem;
     font-weight: 600;
-    box-shadow: 0 2px 8px #bfa76f44;
+    box-shadow: 0 4px 16px #0a0e0e44;
     transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-}
-.btn-carrinho:hover {
-    background: linear-gradient(90deg, #2e4057 60%, #bfa76f 100%);
-    color: #e6d6b8;
-    box-shadow: 0 4px 16px #bfa76f88;
+    backdrop-filter: blur(6px);
 }
 
-.sem-livros {
-    color: #bfa76f;
-    font-size: 1.15rem;
-    margin-top: 2.2rem;
-    font-style: italic;
-    text-shadow: 0 2px 8px #232b2b44;
+.btn-carrinho:hover {
+    background: rgba(46,64,87,0.4);
+    color: #e6d6b8;
+    box-shadow: 0 8px 32px #bfa76f55;
 }
 
 /* Rodapé */
 footer {
     margin-top: 2.2rem;
     padding: 1.2rem;
-    background: linear-gradient(90deg, #232b2b 60%, #2e4057 100%);
+    background: rgba(35,43,43,0.6);
+    backdrop-filter: blur(8px);
     color: #e6d6b8;
-    box-shadow: 0 -4px 24px #0a0e0e99;
-    border-top: 2px solid #bfa76f;
+    box-shadow: 0 -4px 24px #0a0e0e88;
+    border-top: 2px solid #bfa76f66;
     font-size: 1rem;
     letter-spacing: 1px;
+}
+footer a {
+    color: #bfa76f;
+    text-decoration: none;
+    font-weight: 600;
 }

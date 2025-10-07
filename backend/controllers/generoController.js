@@ -27,7 +27,7 @@ exports.criarGenero = async (req, res) => {
     const { id_genero, nome_genero, descricao_genero} = req.body;
 
       const slug_genero = slugify(nome_genero);
-      const imagem_genero = `/img/${slug_genero}.jpg`;
+      const imagem_genero = `${slug_genero}.jpg`;
 
       function slugify(nome) {
         return nome
@@ -111,9 +111,9 @@ exports.atualizarGenero = async (req, res) => {
       'SELECT * FROM genero WHERE id_genero = $1',
       [id]
     );
-
+    
     const slug_genero = slugify(nome_genero);
-    const imagem_genero = `/img/${slug_genero}.jpg`;
+    const imagem_genero = `${slug_genero}.jpg`;
 
     function slugify(nome) {
       return nome

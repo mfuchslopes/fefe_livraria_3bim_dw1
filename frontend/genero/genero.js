@@ -81,6 +81,15 @@ function converterDataParaISO(dataString) {
     return new Date(dataString).toISOString();
 }
 
+function slugify(nome) {
+    return nome
+    .toLowerCase()
+    .trim()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove acentos
+    .replace(/\s+/g, "-") // troca espaços por hífen
+    .replace(/[^a-z0-9-]/g, ""); // remove caracteres especiais
+}
+
 // Função para buscar genero por ID
 async function buscarGenero() {
     const id = searchId.value.trim();
@@ -193,6 +202,22 @@ async function salvarOperacao() {
                 },
                 body: JSON.stringify(genero)
             });
+            const formImage = new FormData();
+            const slug = slugify(genero.nome_genero);
+
+        
+            const novo_arquivo = new File([imagem_genero.files[0]], slug, { type: imagem_genero.files[0].type });
+            formImage.append("imagem", novo_arquivo)
+            console.log(formImage)
+
+
+            await fetch(`${API_BASE_URL}/utils/upload-imagem`, {
+                method: 'POST',
+                body: formImage 
+            })
+
+
+            
         } else if (operacao === 'alterar') {
             response = await fetch(`${API_BASE_URL}/genero/${currentGeneroId}`, {
                 method: 'PUT',
@@ -201,6 +226,18 @@ async function salvarOperacao() {
                 },
                 body: JSON.stringify(genero)
             });
+            const formImage = new FormData();
+            const slug = slugify(genero.nome_genero);
+            
+            const novo_arquivo = new File([imagem_genero.files[0]], slug, { type: imagem_genero.files[0].type });
+            formImage.append("imagem", novo_arquivo)
+            console.log(formImage)
+
+
+            await fetch(`${API_BASE_URL}/utils/upload-imagem`, {
+                method: 'POST',
+                body: formImage 
+            })
         } else if (operacao === 'excluir') {
             // console.log('Excluindo genero com ID:', currentGeneroId);
             response = await fetch(`${API_BASE_URL}/genero/${currentGeneroId}`, {

@@ -25,7 +25,7 @@ exports.criarLivro = async (req, res) => {
   //  console.log('Criando livro com dados:', req.body);
   try {
     const { id_livro, nome_livro, descricao_livro, preco, quant_estoque, data_lanc} = req.body;
-    const imagem_livro = `/img/${id_livro}.jpg`;
+    const imagem_livro = `${id_livro}.jpg`;
 
     // Validação básica
     if (!nome_livro || !preco || !quant_estoque) {
@@ -89,7 +89,7 @@ exports.atualizarLivro = async (req, res) => {
     if (isNaN(id)) return res.status(400).json({ error: 'ID inválido' });
 
     const { nome_livro, descricao_livro, preco, quant_estoque, data_lanc} = req.body;
-    const imagem_livro = `/img/${id}.jpg`;
+    const imagem_livro = `${id}.jpg`;
 
     // Verifica se o livro existe
     const existing = await query('SELECT * FROM livro WHERE id_livro = $1', [id]);

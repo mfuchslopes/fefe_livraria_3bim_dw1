@@ -15,6 +15,7 @@ const btnCancelar = document.getElementById('btnCancelar');
 const btnSalvar = document.getElementById('btnSalvar');
 const livrosTableBody = document.getElementById('livrosTableBody');
 const messageContainer = document.getElementById('messageContainer');
+const imagem_livro = document.getElementById('imagem_livro');
 
 // Carregar lista de livros ao inicializar
 document.addEventListener('DOMContentLoaded', () => {
@@ -80,6 +81,8 @@ function converterDataParaISO(dataString) {
     if (!dataString) return null;
     return new Date(dataString).toISOString();
 }
+
+
 
 // Função para buscar livro por ID
 async function buscarLivro() {
@@ -190,6 +193,16 @@ async function salvarOperacao() {
                 },
                 body: JSON.stringify(livro)
             });
+            const formImage = new FormData();
+            const novo_arquivo = new File([imagem_livro.files[0]], livro.id_livro, { type: imagem_livro.files[0].type });
+            formImage.append("imagem", novo_arquivo)
+            console.log(formImage)
+
+
+            await fetch(`${API_BASE_URL}/utils/upload-imagem`, {
+                method: 'POST',
+                body: formImage 
+            })
         } else if (operacao === 'alterar') {
             response = await fetch(`${API_BASE_URL}/livro/${currentLivroId}`, {
                 method: 'PUT',
@@ -198,6 +211,16 @@ async function salvarOperacao() {
                 },
                 body: JSON.stringify(livro)
             });
+            const formImage = new FormData();
+            const novo_arquivo = new File([imagem_livro.files[0]], livro.id_livro, { type: imagem_livro.files[0].type });
+            formImage.append("imagem", novo_arquivo)
+            console.log(formImage)
+
+
+            await fetch(`${API_BASE_URL}/utils/upload-imagem`, {
+                method: 'POST',
+                body: formImage 
+            })
         } else if (operacao === 'excluir') {
             // console.log('Excluindo livro com ID:', currentLivroId);
             response = await fetch(`${API_BASE_URL}/livro/${currentLivroId}`, {
@@ -276,7 +299,7 @@ function renderizarTabelaLivros(livros) {
                     </td>
                     <td>${livro.nome_livro}</td>  
                     <td>${livro.descricao_livro}</td>
-                    <td><img src="..${livro.imagem_livro}" alt="Capa do livro" width="50"></td>
+                    <td><img src="../img/${livro.imagem_livro}" alt="Capa do livro" width="50"></td>
                     <td>${livro.preco}</td>                
                     <td>${livro.quant_estoque}</td>                  
                     <td>${livro.data_lanc}</td>                  

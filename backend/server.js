@@ -124,6 +124,10 @@ app.use('/genero', generoRoutes);
 
 const livroRoutes = require('./routes/livroRoutes');
 app.use('/livro', livroRoutes);
+
+const utilRoutes = require('./routes/utilRoutes');
+app.use('/utils', utilRoutes);
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Rota padrão

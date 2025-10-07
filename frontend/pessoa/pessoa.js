@@ -290,15 +290,23 @@ async function salvarOperacao() {
     let responsePessoa = null;
     try {
         if (operacao === 'incluir') {
-            responseFuncionario = await fetch(`${API_BASE_URL}/pessoa`, {
+            // 1. Cadastrar pessoa
+            responsePessoa = await fetch(`${API_BASE_URL}/pessoa`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(pessoa)
             });
-            responsePessoa = responseFuncionario;
-            if (document.getElementById('checkboxFuncionario').checked) {
+
+            if (!responsePessoa.ok) {
+                const error = await responsePessoa.json();
+                mostrarMensagem(error.error || 'Erro ao incluir pessoa', 'error');
+                return;
+            }
+
+            // 2. Só depois, cadastrar funcionário (se marcado)
+            if (ehFuncionario) {
                 responseFuncionario = await fetch(`${API_BASE_URL}/funcionario`, {
                     method: 'POST',
                     headers: {
@@ -306,23 +314,33 @@ async function salvarOperacao() {
                     },
                     body: JSON.stringify(funcionario)
                 });
+
+                if (!responseFuncionario.ok) {
+                    const error = await responseFuncionario.json();
+                    mostrarMensagem(error.error || 'Erro ao incluir funcionário', 'error');
+                    return;
+                }
             }
-            let responseCliente = null;
+
+            // 3. Cadastrar cliente (se marcado)
             if (ehCliente) {
-                const cliente = {
-                    id_pessoa: pessoa.id_pessoa
-                };
-                responseCliente = await fetch(`${API_BASE_URL}/cliente`, {
+                const cliente = { id_pessoa: pessoa.id_pessoa };
+                const responseCliente = await fetch(`${API_BASE_URL}/cliente`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(cliente)
                 });
+                if (!responseCliente.ok) {
+                    const error = await responseCliente.json();
+                    mostrarMensagem(error.error || 'Erro ao incluir cliente', 'error');
+                    return;
+                }
             }
+        }
 
-
-        } else if (operacao === 'alterar') {
+            else if (operacao === 'alterar') {
             responseFuncionario = await fetch(`${API_BASE_URL}/pessoa/${currentPersonId}`, {
                 method: 'PUT',
                 headers: {

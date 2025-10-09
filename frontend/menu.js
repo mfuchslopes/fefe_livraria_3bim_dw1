@@ -106,7 +106,7 @@ function carregarLivrosPorGenero(idGenero, nomeGenero) {
         const card = document.createElement('div');
         card.className = 'livro-card';
         card.innerHTML = `
-          <img src="${livro.imagem_livro}" alt="${livro.nome_livro}" class="livro-img">
+          <img src="img/${livro.imagem_livro}" alt="${livro.nome_livro}" class="livro-img">
           <div class="livro-info">
             <h3>${livro.nome_livro}</h3>
             <p class="livro-preco">R$${livro.preco}</p>

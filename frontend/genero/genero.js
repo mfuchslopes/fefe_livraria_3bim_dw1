@@ -298,6 +298,7 @@ async function salvarOperacao() {
             mostrarMensagem('Operação ' + operacao + ' realizada com sucesso!', 'success');
             limparFormulario();
             resetarTabelaLivro_genero(); 
+            travarBtnAdicionarLivro();
             carregarGeneros();
 
         } else if (operacao !== 'excluir') {
@@ -308,6 +309,7 @@ async function salvarOperacao() {
             resetarTabelaLivro_genero(); 
             limparFormulario();
             carregarGeneros();
+            travarBtnAdicionarLivro();
         }
     } catch (error) {
         console.error('Erro:', error);

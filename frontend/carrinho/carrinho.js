@@ -251,6 +251,7 @@ async function salvarOperacao() {
             mostrarMensagem('Operação ' + operacao + ' realizada com sucesso!', 'success');
             limparFormulario();
             resetarTabelaItensCarrinho(); 
+            travarBtnAdicionarLivro();
             carregarCarrinhos();
 
         } else if (operacao !== 'excluir') {
@@ -261,6 +262,7 @@ async function salvarOperacao() {
             resetarTabelaItensCarrinho(); 
             limparFormulario();
             carregarCarrinhos();
+            travarBtnAdicionarLivro();
         }
     } catch (error) {
         console.error('Erro:', error);

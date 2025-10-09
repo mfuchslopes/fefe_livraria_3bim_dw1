@@ -34,27 +34,55 @@
                 </div>
 
                 <fieldset id="formFields">
-                    <legend>Dados do Autor</legend>
+                    <legend>Dados da Autor</legend>
 
                     <div class="form-group">
                         <label for="nome_autor">Nome do autor:</label>
                         <input type="text" id="nome_autor" name="nome_autor" required>
-                    </div>  
+                    </div> 
+
+                 
                 </fieldset>
             </form>
+
+ 
+
+            <div class="livrosDoAutor">
+                <div>Livros do Autor                   
+                    <button type="button" id="btnAdicionarLivro" onclick="adicionarLivro()" class="btn-secondary btn-small btnAdicionarLivro"><i
+                            class="fas fa-box-open"></i> Adicionar Livro</button> 
+                </div>
+                <div class="livro-table-container">
+                    <table id="livrosTable">
+                        <thead>
+                            <tr>
+                                <th>ID Autor</th>
+                                <th>ID</th>
+                                <th>Livro</th>
+                                <th>Salvar</th>
+                                <th>Excluir</th>
+                            </tr>
+                        </thead>
+                        <tbody id="livrosTableBody">
+                            <!-- Livros serão carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+
+
         </section>
 
         <section class="list-section">
             <div class="table-container">
-                <table id="autorsTable">
+                <table id="autoresTable">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Nome</th>                            
                         </tr>
                     </thead>
-                    <tbody id="autorsTableBody">
-                        <!-- Dados serão carregados dinamicamente -->
+                    <tbody id="autoresTableBody">
+                         <!-- Dados serão carregados dinamicamente -->
                     </tbody>
                 </table>
             </div>

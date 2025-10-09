@@ -19,6 +19,7 @@ const messageContainer = document.getElementById('messageContainer');
 // Carregar lista de carrinhos ao inicializar
 document.addEventListener('DOMContentLoaded', () => {
      carregarCarrinhos();
+    travarBtnAdicionarLivro();
 });
 
 // Event Listeners
@@ -133,6 +134,9 @@ async function carregarItensDoCarrinho(carrinhoId) {
             const itensTableBody = document.getElementById('itensTableBody');
             itensTableBody.innerHTML = '';
         }
+
+        
+        travarBtnAdicionarLivro();
         // Ignora outros status silenciosamente
     } catch (error) {
         // Ignora erros de rede silenciosamente para itens
@@ -176,6 +180,7 @@ async function incluirCarrinho() {
     // console.log('Incluir novo carrinho - currentCarrinhoId: ' + currentCarrinhoId);
     limparFormulario();
     resetarTabelaItensCarrinho(); 
+    travarBtnAdicionarLivro();
     searchId.value = currentCarrinhoId;
     bloquearCampos(true);
 
@@ -188,6 +193,7 @@ async function incluirCarrinho() {
 // Função para alterar carrinho
 async function alterarCarrinho() {
     mostrarMensagem('Digite os dados!', 'success');
+    travarBtnAdicionarLivro();
     bloquearCampos(true);
     mostrarBotoes(false, false, false, false, true, true);// mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
     document.getElementById('data_carrinho').focus();
@@ -197,6 +203,7 @@ async function alterarCarrinho() {
 // Função para excluir carrinho
 async function excluirCarrinho() {
     mostrarMensagem('Excluindo carrinho...', 'info');
+    travarBtnAdicionarLivro();
     currentCarrinhoId = searchId.value;
     //bloquear searchId
     searchId.disabled = true;
@@ -269,6 +276,7 @@ async function salvarOperacao() {
 function cancelarOperacao() {
     limparFormulario();
     resetarTabelaItensCarrinho(); 
+    travarBtnAdicionarLivro();
     mostrarBotoes(true, false, false, false, false, false);// mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
     bloquearCampos(false);//libera pk e bloqueia os demais campos
     document.getElementById('searchId').focus();
@@ -668,4 +676,15 @@ function btnExcluirItem(button) {
             console.error('Erro:', error);
             mostrarMensagem(error.message, 'error');
         });
+}
+
+function travarBtnAdicionarLivro() {
+    const btnAdicionar = document.querySelectorAll('.btnAdicionarLivro');
+    const inputCarrinhoId = document.getElementById('searchId').value;
+    if (inputCarrinhoId){
+        btnAdicionar.forEach(btn => btn.disabled = false);
+    } 
+    else {
+        btnAdicionar.forEach(btn => btn.disabled = true);
+    }
 }

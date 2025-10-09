@@ -693,4 +693,3 @@ function travarBtnAdicionarLivro() {
         btnAdicionar.forEach(btn => btn.disabled = true);
     }
 }
-//carregarLivrosDoGenero

@@ -21,8 +21,6 @@ exports.listarCarrinho_livross = async (req, res) => {
 }
 
 
-/////////////////////////////////////////////////////////////////////
-// Função para criar um novo item de carrinho
 ///////////////////////////////////////////////////////////////////// 
 // Função para criar um novo item de carrinho no banco de dados.
 exports.criarCarrinho_livros = async (req, res) => {

@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD - Genero</title>
-    <link rel="stylesheet" href="./genero.css">
+    <title>CRUD - Gênero</title>
+    <link rel="stylesheet" href="/genero/genero.css">
 </head>
 
 <body>
@@ -56,32 +56,6 @@
                  
                 </fieldset>
             </form>
-
- 
-
-            <div class="livrosDoGenero">
-                <div>Livros do Genero                   
-                    <button type="button" id="btnAdicionarLivro" onclick="adicionarLivro()" class="btn-secondary btn-small btnAdicionarLivro"><i
-                            class="fas fa-box-open"></i> Adicionar Livro</button> 
-                </div>
-                <div class="livro-table-container">
-                    <table id="livrosTable">
-                        <thead>
-                            <tr>
-                                <th>ID Genero</th>
-                                <th>ID</th>
-                                <th>Livro</th>
-                                <th>Salvar</th>
-                                <th>Excluir</th>
-                            </tr>
-                        </thead>
-                        <tbody id="livrosTableBody">
-                            <!-- Livros serão carregados dinamicamente -->
-                        </tbody>
-                    </table>
-                </div>
-
-
         </section>
 
         <section class="list-section">
@@ -97,7 +71,7 @@
                         </tr>
                     </thead>
                     <tbody id="generosTableBody">
-                        
+                        <!-- Dados serão carregados dinamicamente -->
                     </tbody>
                 </table>
             </div>
@@ -110,7 +84,7 @@
 
     <div id="messageContainer" class="message-container"></div>
 
-    <script src="./genero.js" defer></script>
+    <script src="/genero/genero.js" defer></script>
 
 </body>
 

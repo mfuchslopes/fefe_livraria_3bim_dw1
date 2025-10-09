@@ -129,7 +129,7 @@ box-shadow: 0 0 0 3px #bfa76f44;
 .search-input-group {
 display: flex;
 gap: 1rem;
-align-livros: center;
+align-items: center;
 }
 
 /* Botões */
@@ -259,7 +259,7 @@ background-color: rgba(46,64,87,0.10);
 /* Grupo de livro dentro da tabela */
 .livro-group {
 display: flex;
-align-livros: center;
+align-items: center;
 gap: 8px;
 height: 100%;
 }

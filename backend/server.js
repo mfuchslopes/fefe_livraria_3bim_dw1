@@ -79,7 +79,14 @@ app.use((err, req, res, next) => {
 const menuRoutes = require('./routes/menuRoutes');
 app.use('/menu', menuRoutes);
 
+const pagamentoRoutes = require('./routes/pagamentoRoutes');
+app.use('/pagamento', pagamentoRoutes);
 
+const carrinho_livrosRoutes = require('./routes/carrinho_livrosRoutes');
+app.use('/carrinho_livros', carrinho_livrosRoutes);
+
+const carrinhoRoutes = require('./routes/carrinhoRoutes');
+app.use('/carrinho', carrinhoRoutes);
 
 const pessoaRoutes = require('./routes/pessoaRoutes');
 app.use('/pessoa', pessoaRoutes);
@@ -191,45 +198,6 @@ app.use((req, res) => {
     timestamp: new Date().toISOString()
   });
 });
-
-
-/////////////////////////////////////////
-/// PARTE DE UPLOAD DE IMAGENS /////
-
-// Configuração do Multer para salvar imagens em /frontend/img
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    console.log(path.join(__dirname, '../img'))
-    cb(null, path.join(__dirname, '../img'));
-  },
-  filename: (req, file, cb) => {
-    console.log(file)
-    // Pega o slug do corpo do formulário
-    let slug = req.body.slug_genero || 'imagem';
-    // Garante que o nome seja seguro
-    slug = slug.replace(/[^a-zA-Z0-9-_]/g, '');
-    cb(null, `${slug}.jpg`);
-  }
-});
-
-const upload = multer({ storage });
-// Middleware para JSON
-app.use(express.json());
-
-// Servir imagens estáticas
-app.use('/img', express.static(path.join(__dirname, '../img')));
-
-// Rotas de gênero com upload aplicado
-app.use('/genero', (req, res, next) => {
-  if ((req.method === 'POST' || req.method === 'PUT') && req.path === '/') {
-    // quando for criar ou atualizar, processa upload da imagem
-    upload.single('imagem_genero')(req, res, next);
-  } else {
-    next();
-  }
-}, generoRoutes);
-
-///////////////////////////////////////////
 
 
 

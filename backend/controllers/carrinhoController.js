@@ -4,37 +4,33 @@ const { query } = require('../database');
 
 const path = require('path');
 
-// // exports.abrirCrudCarrinho = (req, res) => {
-// //   console.log('carrinhoController - Rota /abrirCrudCarrinho - abrir o crudCarrinho');
-// //   res.sendFile(path.join(__dirname, '../../frontend/carrinho/carrinho.html'));
-// // }
+exports.abrirCrudCarrinho = (req, res) => {
+  console.log('carrinhoController - Rota /abrirCrudCarrinho - abrir o crudCarrinho');
+  res.sendFile(path.join(__dirname, '../../frontend/carrinho/carrinho.html'));
+}
 
-// // exports.listarCarrinhos = async (req, res) => {
-// //   try {
-// //     const result = await query('SELECT * FROM carrinho ORDER BY id_carrinho');
-// //    //  console.log('Resultado do SELECT:', result.rows);//verifica se está retornando algo
-// //     res.json(result.rows);
-// //   } catch (error) {
-// //     console.error('Erro ao listar carrinhos:', error);
-// //     res.status(500).json({ error: 'Erro interno do servidor' });
-// //   }
-// //}
-
+exports.listarCarrinho = async (req, res) => {
+  try {
+    const result = await query(`
+      SELECT c.id_carrinho, c.data_carrinho, c.id_pessoa, p.nome
+      FROM carrinho c
+      JOIN pessoa p ON c.id_pessoa = p.id_pessoa
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Erro ao listar carrinhos:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+}
 
 exports.criarCarrinho = async (req, res) => {
   //  console.log('Criando carrinho com dados:', req.body);
   try {
-    const { id_carrinho, data_carrinho, id_pessoa} = req.body;
+    const { id_carrinho, data_carrinho, id_pessoa } = req.body;
 
-    // Validação básica
-    if (!id_carrinho || !data_carrinho || !id_pessoa) {
-      return res.status(400).json({
-        error: 'id_carrinho, data_Carrinho e id_pessoa são obrigatórios'
-      });
-    }
 
     const result = await query(
-      'INSERT INTO carrinho (id_carrinho, data_carrinho, id_pessoa) VALUES ($1, $2, $3) RETURNING *',
+      'INSERT INTO carrinho (id_carrinho, data_carrinho, id_pessoa ) VALUES ($1, $2, $3) RETURNING *',
       [id_carrinho, data_carrinho, id_pessoa]
     );
 
@@ -42,24 +38,17 @@ exports.criarCarrinho = async (req, res) => {
   } catch (error) {
     console.error('Erro ao criar carrinho:', error);
 
-   
-
-    // Verifica se é erro de violação de constraint NOT NULL
-    if (error.code === '23502') {
-      return res.status(400).json({
-        error: 'Dados obrigatórios não fornecidos'
-      });
-    }
 
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
 
 exports.obterCarrinho = async (req, res) => {
+  // console.log('Obtendo carrinho com ID:', req.params.id);
+
   try {
     const id = parseInt(req.params.id);
 
-   // console.log("estou no obter carrinho id="+ id);
     if (isNaN(id)) {
       return res.status(400).json({ error: 'ID deve ser um número válido' });
     }
@@ -69,13 +58,13 @@ exports.obterCarrinho = async (req, res) => {
       [id]
     );
 
-    //console.log(result)
-
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Carrinho não encontrado' });
     }
 
-    res.json(result.rows[0]);
+    res.json(result.rows[0]); //achou o carrinho e retorna todos os dados do carrinho
+    //console.log('Carrinho encontrado:', result.rows[0]);
+
   } catch (error) {
     console.error('Erro ao obter carrinho:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
@@ -83,100 +72,61 @@ exports.obterCarrinho = async (req, res) => {
 }
 
 exports.atualizarCarrinho = async (req, res) => {
+  console.log('Atualizando carrinho com ID:', req.params.id, 'e dados:', req.body);
   try {
-    const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) return res.status(400).json({ error: 'ID inválido' });
+    const id = parseInt(req.params.id);
 
-    const { nome_carrinho, descricao_carrinho, preco, quant_estoque, data_lanc} = req.body;
-    const imagem_carrinho = `/img/${id}.jpg`;
+    const { data_carrinho, id_pessoa } = req.body;
 
-    // Verifica se o carrinho existe
-    const existing = await query('SELECT * FROM carrinho WHERE id_carrinho = $1', [id]);
-    if (existing.rows.length === 0) {
+    console.log('ID do carrinho a ser atualizado:' + id + ' Dados recebidos:' + data_carrinho + ' - ' + id_pessoa);
+
+
+    // Verifica se a carrinho existe
+    const existingCarrinhoResult = await query(
+      'SELECT * FROM carrinho WHERE id_carrinho = $1',
+      [id]
+    );
+
+    if (existingCarrinhoResult.rows.length === 0) {
       return res.status(404).json({ error: 'Carrinho não encontrado' });
     }
 
-    // Monta UPDATE dinâmico apenas com campos válidos
-    const updates = [];
-    const values = [];
-    let idx = 1;
+    // Constrói a query de atualização dinamicamente para campos não nulos
+    const currentCarrinho = existingCarrinhoResult.rows[0];
 
-    if (nome_carrinho != null && String(nome_carrinho).trim() !== '') {
-      updates.push(`nome_carrinho = $${idx++}`);
-      values.push(String(nome_carrinho).trim());
-    }
+  
 
-    if (descricao_carrinho != null && String(descricao_carrinho).trim() !== '') {
-      updates.push(`descricao_carrinho = $${idx++}`);
-      values.push(String(descricao_carrinho).trim());
-    }
+    const updatedFields = {
+      data_carrinho: data_carrinho !== undefined ? data_carrinho : currentCarrinho.data_carrinho,
+      id_pessoa: id_pessoa !== undefined ? id_pessoa : currentCarrinho.id_pessoa,
+    };
+    // console.log('Campos da atualização:', updatedFields);
 
-    updates.push(`imagem_carrinho = $${idx++}`);
-    values.push(imagem_carrinho);
+    // Atualiza a carrinho
+    const updateResult = await query(
+      'UPDATE carrinho SET data_carrinho = $1, id_pessoa = $2 WHERE id_carrinho = $3 RETURNING *',
+      [updatedFields.data_carrinho, updatedFields.id_pessoa, id]
+    );
 
- // preco: aceitar número válido (float), >= 0
-    if (preco != null && String(preco).trim() !== '') {
-      const priceStr = String(preco).replace(',', '.').trim();
-      const price = Number(priceStr);
-      if (!Number.isFinite(price)) {
-        return res.status(400).json({ error: 'preco deve ser um número válido' });
-      }
-      if (price < 0) {
-        return res.status(400).json({ error: 'preco não pode ser negativo' });
-      }
-      updates.push(`preco = $${idx++}`);
-      values.push(price);
-    }
-
-
-    // quantidade_estoque: aceitar apenas inteiro válido
-    if (quant_estoque != null && String(quant_estoque).trim() !== '') {
-      const qtyStr = String(quant_estoque).replace(',', '.').trim();
-      const qty = Number(qtyStr);
-      if (!Number.isInteger(qty)) {
-        return res.status(400).json({ error: 'quant_estoque deve ser um inteiro válido' });
-      }
-      updates.push(`quant_estoque = $${idx++}`);
-      values.push(qty);
-    }
-
-    // data_lanc: aceitar data válida no formato YYYY-MM-DD
-    if (data_lanc != null && String(data_lanc).trim() !== '') {
-      const date = new Date(String(data_lanc).trim());
-      if (isNaN(date.getTime())) {
-        return res.status(400).json({ error: 'data_lanc deve ser uma data válida' });
-      }
-      updates.push(`data_lanc = $${idx++}`);
-      values.push(date);
-    }
-
-    if (updates.length === 0) {
-      return res.status(400).json({ error: 'Nenhum campo válido para atualizar' });
-    }
-
-    values.push(id);
-    const sql = `UPDATE carrinho SET ${updates.join(', ')} WHERE id_carrinho = $${idx} RETURNING *`;
-
-    const updateResult = await query(sql, values);
-    return res.json(updateResult.rows[0]);
+    res.json(updateResult.rows[0]);
   } catch (error) {
     console.error('Erro ao atualizar carrinho:', error);
-    return res.status(500).json({ error: 'Erro interno do servidor' });
-  }
-};
 
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+}
 
 exports.deletarCarrinho = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     // Verifica se a carrinho existe
-    const existingPersonResult = await query(
+    const existingCarrinhoResult = await query(
       'SELECT * FROM carrinho WHERE id_carrinho = $1',
       [id]
     );
 
-    if (existingPersonResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Carrinho não encontrada' });
+    if (existingCarrinhoResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Carrinho não encontrado' });
     }
 
     // Deleta a carrinho (as constraints CASCADE cuidarão das dependências)
@@ -199,5 +149,3 @@ exports.deletarCarrinho = async (req, res) => {
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
-
-

@@ -24,12 +24,39 @@ exports.listarPagamentos = async (req, res) => {
 exports.criarPagamento = async (req, res) => {
   //  console.log('Criando pagamento com dados:', req.body);
   try {
-    const { id_carrinho, data_pagamento, valor_pag} = req.body;
+    const { id_carrinho, data_pagamento} = req.body;
+    const valor_pag = await query(
+      'SELECT SUM(l.preco * cl.quant_livro) AS valor_pag '+ 
+      'FROM carrinho c ' + 
+      'JOIN carrinho_livros cl ON c.id_carrinho = cl.id_carrinho ' + 
+      'JOIN livro l ON cl.id_livro = l.id_livro ' + 
+      'WHERE c.id_carrinho = $1 '+
+      'GROUP BY c.id_carrinho; ',
+      [id_carrinho]
+    ).then(result => result.rows[0] ? result.rows[0].valor_pag : null);
 
     // Validação básica
     if (!data_pagamento || !valor_pag) {
       return res.status(400).json({
         error: 'A data e o valor do pagamento são obrigatórios'
+      });
+    }
+
+    
+    // Buscar data de criação do carrinho
+    const carrinho = await query(
+      'SELECT data_carrinho FROM carrinho WHERE id_carrinho = $1',
+      [id_carrinho]
+    ).then(r => r.rows[0]);
+
+    if (!carrinho) {
+      return res.status(404).json({ error: 'Carrinho não encontrado' });
+    }
+
+    // Verificação de data: pagamento >= data de criação do carrinho
+    if (new Date(data_pagamento) < new Date(carrinho.data_carrinho)) {
+      return res.status(400).json({
+        error: 'A data de pagamento não pode ser anterior à data de criação do carrinho'
       });
     }
 
@@ -85,7 +112,33 @@ exports.obterPagamento = async (req, res) => {
 exports.atualizarPagamento = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { data_pagamento, valor_pag} = req.body;
+    const { data_pagamento} = req.body;
+
+    // Buscar data de criação do carrinho para validação
+    const carrinho = await query(
+      'SELECT data_carrinho FROM carrinho WHERE id_carrinho = $1',
+      [id]
+    ).then(r => r.rows[0]);
+
+    if (!carrinho) {
+      return res.status(404).json({ error: 'Carrinho não encontrado' });
+    }
+
+    if (data_pagamento && new Date(data_pagamento) < new Date(carrinho.data_carrinho)) {
+      return res.status(400).json({
+        error: 'A data de pagamento não pode ser anterior à data de criação do carrinho'
+      });
+    }
+
+    const valor_pag = await query(
+      'SELECT SUM(l.preco * cl.quant_livro) AS valor_pag '+ 
+      'FROM carrinho c ' + 
+      'JOIN carrinho_livros cl ON c.id_carrinho = cl.id_carrinho ' + 
+      'JOIN livro l ON cl.id_livro = l.id_livro ' + 
+      'WHERE c.id_carrinho = $1 '+
+      'GROUP BY c.id_carrinho; ',
+      [id]
+    ).then(result => result.rows[0] ? result.rows[0].valor_total : null);
 
    
     // Verifica se a pagamento existe
@@ -155,3 +208,22 @@ exports.deletarPagamento = async (req, res) => {
 }
 
 
+exports.obterPagamentoPorCarrinho = async (req, res) => {
+  try {
+    const { idCarrinho } = req.params;
+
+    const result = await query(
+      'SELECT * FROM pagamento WHERE id_carrinho = $1',
+      [idCarrinho]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ mensagem: 'Pagamento não encontrado' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Erro ao buscar pagamento por carrinho:', error);
+    res.status(500).json({ mensagem: 'Erro interno do servidor' });
+  }
+};

@@ -15,6 +15,7 @@ exports.listarCarrinho = async (req, res) => {
       SELECT c.id_carrinho, c.data_carrinho, c.id_pessoa, p.nome
       FROM carrinho c
       JOIN pessoa p ON c.id_pessoa = p.id_pessoa
+      ORDER BY c.id_carrinho
     `);
     res.json(result.rows);
   } catch (error) {
@@ -28,6 +29,24 @@ exports.criarCarrinho = async (req, res) => {
   try {
     const { id_carrinho, data_carrinho, id_pessoa } = req.body;
 
+    // Verifica se já existe pagamento para este carrinho
+    const pagamento = await query(
+      'SELECT data_pagamento FROM pagamento WHERE id_carrinho = $1',
+      [id_carrinho]
+    ).then(r => r.rows[0]);
+
+    if (pagamento && new Date(data_carrinho) > new Date(pagamento.data_pagamento)) {
+      return res.status(400).json({
+        error: 'A data de criação do carrinho não pode ser posterior à data de pagamento já registrado'
+      });
+    }
+
+    const hoje = new Date(); 
+      if (data_carrinho && new Date(data_carrinho) > hoje) {
+        return res.status(400).json({
+          error: 'A data de criação do carrinho não pode ser futura'
+        });
+      }
 
     const result = await query(
       'INSERT INTO carrinho (id_carrinho, data_carrinho, id_pessoa ) VALUES ($1, $2, $3) RETURNING *',
@@ -94,7 +113,23 @@ exports.atualizarCarrinho = async (req, res) => {
     // Constrói a query de atualização dinamicamente para campos não nulos
     const currentCarrinho = existingCarrinhoResult.rows[0];
 
-  
+    // Verifica se já existe pagamento para este carrinho
+    const pagamento = await query(
+      'SELECT data_pagamento FROM pagamento WHERE id_carrinho = $1',
+      [id]
+    ).then(r => r.rows[0]);
+
+    const hoje = new Date(); 
+      if (data_carrinho && new Date(data_carrinho) > hoje) {
+        return res.status(400).json({
+          error: 'A data de criação do carrinho não pode ser futura'
+        });
+      }
+    if (pagamento && new Date(data_carrinho) > new Date(pagamento.data_pagamento)) {
+      return res.status(400).json({
+        error: 'A data de criação do carrinho não pode ser posterior à data de pagamento já registrado'
+      });
+    }
 
     const updatedFields = {
       data_carrinho: data_carrinho !== undefined ? data_carrinho : currentCarrinho.data_carrinho,

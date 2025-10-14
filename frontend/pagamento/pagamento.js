@@ -1,11 +1,11 @@
 
 // Configuração da API, IP e porta.
 const API_BASE_URL = 'http://localhost:3001';
-let currentLivroId = null;
+let currentPagamentoId = null;
 let operacao = null;
 
 // Elementos do DOM
-const form = document.getElementById('livroForm');
+const form = document.getElementById('pagamentoForm');
 const searchId = document.getElementById('searchId');
 const btnBuscar = document.getElementById('btnBuscar');
 const btnIncluir = document.getElementById('btnIncluir');
@@ -13,20 +13,27 @@ const btnAlterar = document.getElementById('btnAlterar');
 const btnExcluir = document.getElementById('btnExcluir');
 const btnCancelar = document.getElementById('btnCancelar');
 const btnSalvar = document.getElementById('btnSalvar');
-const livrosTableBody = document.getElementById('livrosTableBody');
+const pagamentosTableBody = document.getElementById('pagamentosTableBody');
 const messageContainer = document.getElementById('messageContainer');
-const imagem_livro = document.getElementById('imagem_livro');
 
-// Carregar lista de livros ao inicializar
+// Carregar lista de pagamentos ao inicializar
 document.addEventListener('DOMContentLoaded', () => {
-    carregarLivros();
+    carregarPagamentos();
+
+    // --- NOVO: Preencher pagamento se vier do CRUD de carrinho ---
+    const params = new URLSearchParams(window.location.search);
+    const idCarrinho = params.get('idCarrinho');
+    if (idCarrinho) {
+        searchId.value = idCarrinho; // coloca o id no input
+        buscarPagamento(); // busca e preenche o formulário automaticamente
+    }
 });
 
 // Event Listeners
-btnBuscar.addEventListener('click', buscarLivro);
-btnIncluir.addEventListener('click', incluirLivro);
-btnAlterar.addEventListener('click', alterarLivro);
-btnExcluir.addEventListener('click', excluirLivro);
+btnBuscar.addEventListener('click', buscarPagamento);
+btnIncluir.addEventListener('click', incluirPagamento);
+btnAlterar.addEventListener('click', alterarPagamento);
+btnExcluir.addEventListener('click', excluirPagamento);
 btnCancelar.addEventListener('click', cancelarOperacao);
 btnSalvar.addEventListener('click', salvarOperacao);
 
@@ -76,6 +83,12 @@ function formatarData(dataString) {
     return data.toLocaleDateString('pt-BR');
 }
 
+// Função para converter data para formato ISO
+function converterDataParaISO(dataString) {
+    if (!dataString) return null;
+    return new Date(dataString).toISOString();
+}
+
 function formatarDataParaInputDate(data) {
     const dataObj = new Date(data); // Converte a data para um objeto Date
     const ano = dataObj.getFullYear();
@@ -84,16 +97,9 @@ function formatarDataParaInputDate(data) {
     return `${ano}-${mes}-${dia}`; // Retorna a data no formato yyyy-mm-dd
 }
 
-// Função para converter data para formato ISO
-function converterDataParaISO(dataString) {
-    if (!dataString) return null;
-    return new Date(dataString).toISOString();
-}
 
-
-
-// Função para buscar livro por ID
-async function buscarLivro() {
+// Função para buscar pagamento por ID
+async function buscarPagamento() {
     const id = searchId.value.trim();
     if (!id) {
         mostrarMensagem('Digite um ID para buscar', 'warning');
@@ -103,74 +109,75 @@ async function buscarLivro() {
     //focus no campo searchId
     searchId.focus();
     try {
-        const response = await fetch(`${API_BASE_URL}/livro/${id}`);
+        const response = await fetch(`${API_BASE_URL}/pagamento/${id}`);
         console.log(JSON.stringify(response));
 
         if (response.ok) {
-            const livro = await response.json();
-            preencherFormulario(livro);
+            const pagamento = await response.json();
+            preencherFormulario(pagamento);
 
             mostrarBotoes(true, false, true, true, false, false);// mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
-            mostrarMensagem('Livro encontrado!', 'success');
+            mostrarMensagem('Pagamento encontrado!', 'success');
 
         } else if (response.status === 404) {
             limparFormulario();
             searchId.value = id;
             mostrarBotoes(true, true, false, false, false, false); //mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
-            mostrarMensagem('Livro não encontrado. Você pode incluir um novo livro.', 'info');
+            mostrarMensagem('Pagamento não encontrado. Você pode incluir um novo pagamento.', 'info');
             bloquearCampos(false);//bloqueia a pk e libera os demais campos
             //enviar o foco para o campo de nome
         } else {
-            throw new Error('Erro ao buscar livro');
+            throw new Error('Erro ao buscar pagamento');
         }
     } catch (error) {
         console.error('Erro:', error);
-        mostrarMensagem('Erro ao buscar livro', 'error');
+        mostrarMensagem('Erro ao buscar pagamento', 'error');
     }
 }
 
-// Função para preencher formulário com dados da livro
-function preencherFormulario(livro) {
-    console.log(JSON.stringify(livro));
+// Função para preencher formulário com dados da pagamento
+function preencherFormulario(pagamento) {
+    console.log(JSON.stringify(pagamento));
 
-    currentLivroId = livro.id_livro;
-    searchId.value = livro.id_livro;
-    document.getElementById('nome_livro').value = livro.nome_livro || '';
-    document.getElementById('descricao_livro').value = livro.nome_livro || '';
-    document.getElementById('preco').value = livro.preco || 0;
-    document.getElementById('quant_estoque').value = livro.quant_estoque || 0;
-    document.getElementById('data_lanc').value = formatarDataParaInputDate(livro.data_lanc) || '';
+
+    currentPagamentoId = pagamento.id_carrinho;
+    searchId.value = pagamento.id_carrinho;
+    document.getElementById('data_pagamento').value = formatarDataParaInputDate(pagamento.data_pagamento) || '';
+
 }
 
-// Função para incluir livro
-async function incluirLivro() {
+
+// Função para incluir pagamento
+async function incluirPagamento() {
 
     mostrarMensagem('Digite os dados!', 'success');
-    currentLivroId = searchId.value;
-    // console.log('Incluir novo livro - currentLivroId: ' + currentLivroId);
+    currentPagamentoId = searchId.value;
+    // console.log('Incluir nova pagamento - currentPagamentoId: ' + currentPagamentoId);
     limparFormulario();
-    searchId.value = currentLivroId;
+    searchId.value = currentPagamentoId;
     bloquearCampos(true);
+    searchId.disabled = true; // bloqueia o campo pk
 
     mostrarBotoes(false, false, false, false, true, true); // mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
-    document.getElementById('nome_livro').focus();
+    document.getElementById('data_pagamento').focus();
     operacao = 'incluir';
-    // console.log('fim nova livro - currentLivroId: ' + currentLivroId);
+    // console.log('fim nova pagamento - currentPagamentoId: ' + currentPagamentoId);
 }
 
-// Função para alterar livro
-async function alterarLivro() {
+// Função para alterar pagamento
+async function alterarPagamento() {
     mostrarMensagem('Digite os dados!', 'success');
     bloquearCampos(true);
+    searchId.disabled = true; // bloquear pk
     mostrarBotoes(false, false, false, false, true, true);// mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
-    document.getElementById('nome_livro').focus();
+    document.getElementById('data_pagamento').focus();
     operacao = 'alterar';
 }
 
-// Função para excluir livro
-async function excluirLivro() {
-    mostrarMensagem('Excluindo livro...', 'info');
-    currentLivroId = searchId.value;
+// Função para excluir pagamento
+async function excluirPagamento() {
+    mostrarMensagem('Excluindo pagamento...', 'info');
+    currentPagamentoId = searchId.value;
     //bloquear searchId
     searchId.disabled = true;
     bloquearCampos(false); // libera os demais campos
@@ -179,79 +186,62 @@ async function excluirLivro() {
 }
 
 async function salvarOperacao() {
-    console.log('Operação:', operacao + ' - currentLivroId: ' + currentLivroId + ' - searchId: ' + searchId.value);
+    console.log('Operação:', operacao + ' - currentPagamentoId: ' + currentPagamentoId + ' - searchId: ' + searchId.value);
+
+    const idCarrinho = searchId.value;
+
+    // Verifica se o carrinho está vazio
+    const vazio = await verificarCarrinhoVazio(idCarrinho);
+    if (vazio) return; // bloqueia a operação
 
     const formData = new FormData(form);
-    const livro = {
-        id_livro: searchId.value,
-        nome_livro: formData.get('nome_livro'),
-        descricao_livro: formData.get('descricao_livro'),
-        quant_estoque: formData.get('quant_estoque'),
-        preco: formData.get('preco'),
-        data_lanc: formData.get('data_lanc'),
+    const pagamento = {
+        id_carrinho: searchId.value,
+        data_pagamento: formData.get('data_pagamento')
+
     };
     let response = null;
     try {
         if (operacao === 'incluir') {
-            response = await fetch(`${API_BASE_URL}/livro`, {
+            response = await fetch(`${API_BASE_URL}/pagamento`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(livro)
+                body: JSON.stringify(pagamento)
             });
-            const formImage = new FormData();
-            const novo_arquivo = new File([imagem_livro.files[0]], livro.id_livro, { type: imagem_livro.files[0].type });
-            formImage.append("imagem", novo_arquivo)
-            console.log(formImage)
-
-
-            await fetch(`${API_BASE_URL}/utils/upload-imagem`, {
-                method: 'POST',
-                body: formImage 
-            })
         } else if (operacao === 'alterar') {
-            response = await fetch(`${API_BASE_URL}/livro/${currentLivroId}`, {
+            response = await fetch(`${API_BASE_URL}/pagamento/${currentPagamentoId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(livro)
+                body: JSON.stringify(pagamento)
             });
-            const formImage = new FormData();
-            const novo_arquivo = new File([imagem_livro.files[0]], livro.id_livro, { type: imagem_livro.files[0].type });
-            formImage.append("imagem", novo_arquivo)
-            console.log(formImage)
-
-
-            await fetch(`${API_BASE_URL}/utils/upload-imagem`, {
-                method: 'POST',
-                body: formImage 
-            })
         } else if (operacao === 'excluir') {
-            // console.log('Excluindo livro com ID:', currentLivroId);
-            response = await fetch(`${API_BASE_URL}/livro/${currentLivroId}`, {
+            // console.log('Excluindo pagamento com ID:', currentPagamentoId);
+            response = await fetch(`${API_BASE_URL}/pagamento/${currentPagamentoId}`, {
                 method: 'DELETE'
             });
-            console.log('Livro excluído' + response.status);
+            console.log('Pagamento excluído' + response.status);
         }
         if (response.ok && (operacao === 'incluir' || operacao === 'alterar')) {
-            const novaLivro = await response.json();
+            const novaPagamento = await response.json();
             mostrarMensagem('Operação ' + operacao + ' realizada com sucesso!', 'success');
             limparFormulario();
-            carregarLivros();
+            carregarPagamentos();
 
         } else if (operacao !== 'excluir') {
             const error = await response.json();
-            mostrarMensagem(error.error || 'Erro ao incluir livro', 'error');
+            mostrarMensagem(error.error || 'Erro ao incluir pagamento', 'error');
         } else {
-            mostrarMensagem('Livro excluído com sucesso!', 'success');
+            mostrarMensagem('Pagamento excluído com sucesso!', 'success');
             limparFormulario();
-            carregarLivros();
+            carregarPagamentos();
         }
     } catch (error) {
         console.error('Erro:', error);
-        mostrarMensagem('Erro ao incluir ou alterar a livro', 'error');
+        mostrarMensagem('Erro ao incluir ou alterar a pagamento', 'error');
     }
 
     mostrarBotoes(true, false, false, false, false, false);// mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
@@ -268,10 +258,10 @@ function cancelarOperacao() {
     mostrarMensagem('Operação cancelada', 'info');
 }
 
-// Função para carregar lista de livros
-async function carregarLivros() {
+// Função para carregar lista de pagamentos
+async function carregarPagamentos() {
     try {
-        const rota = `${API_BASE_URL}/livro`;
+        const rota = `${API_BASE_URL}/pagamento`;
        // console.log("a rota " + rota);
 
        
@@ -281,43 +271,70 @@ async function carregarLivros() {
 
         //    debugger
         if (response.ok) {
-            const livros = await response.json();
-            renderizarTabelaLivros(livros);
+            const pagamentos = await response.json();
+            renderizarTabelaPagamentos(pagamentos);
         } else {
-            throw new Error('Erro ao carregar livros');
+            throw new Error('Erro ao carregar pagamentos');
         }
     } catch (error) {
         console.error('Erro:', error);
-        mostrarMensagem('Erro ao carregar lista de livros', 'error');
+        mostrarMensagem('Erro ao carregar lista de pagamentos', 'error');
     }
 }
 
-// Função para renderizar tabela de livros
-function renderizarTabelaLivros(livros) {
-    livrosTableBody.innerHTML = '';
+// Função para renderizar tabela de pagamentos
+function renderizarTabelaPagamentos(pagamentos) {
+    pagamentosTableBody.innerHTML = '';
 
-    livros.forEach(livro => {
+    pagamentos.forEach(pagamento => {
         const row = document.createElement('tr');
         row.innerHTML = `
                     <td>
-                        <button class="btn-id" onclick="selecionarLivro(${livro.id_livro})">
-                            ${livro.id_livro}
+                        <button class="btn-id" onclick="selecionarPagamento(${pagamento.id_carrinho})">
+                            ${pagamento.id_carrinho}
                         </button>
                     </td>
-                    <td>${livro.nome_livro}</td>  
-                    <td>${livro.descricao_livro}</td>
-                    <td><img src="../img/${livro.imagem_livro}" alt="Capa do livro" width="50"></td>
-                    <td>${livro.preco}</td>                
-                    <td>${livro.quant_estoque}</td>                  
-                    <td>${formatarData(livro.data_lanc)}</td>                  
+                    <td>${formatarData(pagamento.data_pagamento)}</td> 
+                    <td>${pagamento.valor_pag}</td>                 
                                  
                 `;
-        livrosTableBody.appendChild(row);
+        pagamentosTableBody.appendChild(row);
     });
 }
 
-// Função para selecionar livro da tabela
-async function selecionarLivro(id) {
+// Função para selecionar pagamento da tabela
+async function selecionarPagamento(id) {
     searchId.value = id;
-    await buscarLivro();
+    await buscarPagamento();
 }
+
+// Função para verificar se o carrinho está vazio
+async function verificarCarrinhoVazio(idCarrinho) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/carrinho_livros/${idCarrinho}`);
+        
+        if (response.status === 404) {
+            // Nenhum item encontrado para este carrinho
+            mostrarMensagem('Não é possível salvar o pagamento de um carrinho vazio!', 'warning');
+            return true; // carrinho vazio
+        }
+
+        if (!response.ok) {
+            throw new Error('Erro ao buscar itens do carrinho');
+        }
+
+        const itens = await response.json();
+
+        if (!itens || itens.length === 0) {
+            mostrarMensagem('Não é possível salvar o pagamento de um carrinho vazio!', 'warning');
+            return true; // carrinho vazio
+        }
+
+        return false; // carrinho possui itens
+    } catch (error) {
+        console.error('Erro ao verificar carrinho:', error);
+        mostrarMensagem('Erro ao verificar carrinho', 'error');
+        return true; // por segurança, considera vazio em caso de erro
+    }
+}
+

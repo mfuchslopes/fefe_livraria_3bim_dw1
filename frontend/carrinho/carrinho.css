@@ -343,6 +343,13 @@ div .item-table-container table {
     color: #e6d6b8;
 }
 
+#coisinhasDoCarrinho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px;
+}
+
 #btnAdicionarItem {
     margin: 10px;
 }

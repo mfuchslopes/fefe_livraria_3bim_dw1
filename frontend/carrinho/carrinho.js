@@ -18,8 +18,8 @@ const messageContainer = document.getElementById('messageContainer');
 
 // Carregar lista de carrinhos ao inicializar
 document.addEventListener('DOMContentLoaded', () => {
-     carregarCarrinhos();
-    travarBtnAdicionarLivro();
+    carregarCarrinhos();
+    travarBtnAdicionarItem();
 });
 
 // Event Listeners
@@ -57,6 +57,7 @@ function bloquearCampos(bloquearPrimeiro) {
 // Função para limpar formulário
 function limparFormulario() {
     form.reset();
+    document.getElementById('infoPagamento').textContent = '';
 }
 
 
@@ -102,7 +103,7 @@ async function buscarCarrinho() {
             mostrarMensagem('Carrinho encontrado!', 'success');
 
             // Fazer a requisição dos itens separadamente e carregar na tabela
-            await carregarItensDoCarrinho(carrinho.id_carrinho);
+            await carregarCarrinho(carrinho);
 
         } else if (response.status === 404) {
             limparFormulario();
@@ -136,7 +137,7 @@ async function carregarItensDoCarrinho(carrinhoId) {
         }
 
         
-        travarBtnAdicionarLivro();
+        travarBtnAdicionarItem();
         // Ignora outros status silenciosamente
     } catch (error) {
         // Ignora erros de rede silenciosamente para itens
@@ -165,6 +166,7 @@ function preencherFormulario(carrinho) {
 
 }
 
+
 // Função para resetar a tabela de itens do carrinho
 function resetarTabelaItensCarrinho() {
     const itensTableBody = document.getElementById('itensTableBody');
@@ -180,7 +182,7 @@ async function incluirCarrinho() {
     // console.log('Incluir novo carrinho - currentCarrinhoId: ' + currentCarrinhoId);
     limparFormulario();
     resetarTabelaItensCarrinho(); 
-    travarBtnAdicionarLivro();
+    travarBtnAdicionarItem();
     searchId.value = currentCarrinhoId;
     bloquearCampos(true);
 
@@ -193,7 +195,7 @@ async function incluirCarrinho() {
 // Função para alterar carrinho
 async function alterarCarrinho() {
     mostrarMensagem('Digite os dados!', 'success');
-    travarBtnAdicionarLivro();
+    travarBtnAdicionarItem();
     bloquearCampos(true);
     mostrarBotoes(false, false, false, false, true, true);// mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
     document.getElementById('data_carrinho').focus();
@@ -203,7 +205,7 @@ async function alterarCarrinho() {
 // Função para excluir carrinho
 async function excluirCarrinho() {
     mostrarMensagem('Excluindo carrinho...', 'info');
-    travarBtnAdicionarLivro();
+    travarBtnAdicionarItem();
     currentCarrinhoId = searchId.value;
     //bloquear searchId
     searchId.disabled = true;
@@ -251,7 +253,7 @@ async function salvarOperacao() {
             mostrarMensagem('Operação ' + operacao + ' realizada com sucesso!', 'success');
             limparFormulario();
             resetarTabelaItensCarrinho(); 
-            travarBtnAdicionarLivro();
+            travarBtnAdicionarItem();
             carregarCarrinhos();
 
         } else if (operacao !== 'excluir') {
@@ -262,7 +264,7 @@ async function salvarOperacao() {
             resetarTabelaItensCarrinho(); 
             limparFormulario();
             carregarCarrinhos();
-            travarBtnAdicionarLivro();
+            travarBtnAdicionarItem();
         }
     } catch (error) {
         console.error('Erro:', error);
@@ -278,7 +280,7 @@ async function salvarOperacao() {
 function cancelarOperacao() {
     limparFormulario();
     resetarTabelaItensCarrinho(); 
-    travarBtnAdicionarLivro();
+    travarBtnAdicionarItem();
     mostrarBotoes(true, false, false, false, false, false);// mostrarBotoes(btBuscar, btIncluir, btAlterar, btExcluir, btSalvar, btCancelar)
     bloquearCampos(false);//libera pk e bloqueia os demais campos
     document.getElementById('searchId').focus();
@@ -311,10 +313,10 @@ function renderizerTabelaItensCarrinho(itens) {
             <td class="preco-cell">${item.preco}</td>                               
             <td class="subtotal-cell">${subTotal}</td> 
             <td>
-               <button class="btn-secondary btn-small" onclick="btnAtualizarItem(this)">Atualizar</button>
+               <button class="btn-secondary btn-small btnAtualizarItem" onclick="btnAtualizarItem(this)">Atualizar</button>
             </td>      
             <td>
-                 <button class="btn-secondary btn-small" onclick="btnExcluirItem(this)">Excluir</button>
+                 <button class="btn-secondary btn-small btnExcluirItem" onclick="btnExcluirItem(this)">Excluir</button>
             </td>                
         `;
         itensTableBody.appendChild(row);
@@ -680,8 +682,8 @@ function btnExcluirItem(button) {
         });
 }
 
-function travarBtnAdicionarLivro() {
-    const btnAdicionar = document.querySelectorAll('.btnAdicionarLivro');
+function travarBtnAdicionarItem() {
+    const btnAdicionar = document.querySelectorAll('#btnAdicionarItem');
     const inputCarrinhoId = document.getElementById('searchId').value;
     if (inputCarrinhoId){
         btnAdicionar.forEach(btn => btn.disabled = false);
@@ -690,3 +692,72 @@ function travarBtnAdicionarLivro() {
         btnAdicionar.forEach(btn => btn.disabled = true);
     }
 }
+
+
+async function carregarCarrinho(carrinho) {
+
+    preencherFormulario(carrinho);
+
+    
+    // Carrega os itens
+    await carregarItensDoCarrinho(carrinho.id_carrinho);
+
+    // Verifica se existe pagamento para o carrinho
+    const pagamento = await buscarPagamentoPorCarrinho(carrinho.id_carrinho);
+    if (pagamento) {
+        bloquearEdicaoCarrinho();
+        exibirPagamentoNoCarrinho(pagamento);
+    }
+}
+
+async function buscarPagamentoPorCarrinho(idCarrinho) {
+    // Supondo que o backend tem um endpoint para buscar pagamento por carrinho
+    const resposta = await fetch(`${API_BASE_URL}/pagamento/carrinho/${idCarrinho}`);
+    if (resposta.ok) {
+        return await resposta.json();
+    }
+    return null;
+}
+
+function bloquearEdicaoCarrinho() {
+    // Desabilita inputs e botões de edição/adicionar/remover itens
+    document.querySelectorAll('#btnAdicionarItem, .btnExcluirItem, .btnAtualizarItem').forEach(btn => {
+        btn.style.display = 'none';
+    });
+    document.querySelectorAll('.quantidade-input').forEach(input => {
+        input.disabled = true;
+    });
+    // Se quiser, pode exibir um aviso
+    mostrarMensagem('Este carrinho já foi pago e não pode ter seus itens editados.', 'warning');
+}
+
+function exibirPagamentoNoCarrinho(pagamento) {
+    const divPagamento = document.getElementById('infoPagamento');
+    divPagamento.innerHTML = `
+        <h3>Pagamento realizado</h3>
+        <table>
+            <tr>
+            <td>${formatarData(pagamento.data_pagamento)}</td>
+            <td>R$ ${pagamento.valor_pag}</td>
+            </tr>
+        </table>
+        `;
+    divPagamento.style.display = 'block';
+}
+
+const divPagamento = document.getElementById('infoPagamento');
+
+divPagamento.addEventListener('click', () => {
+    // Verifica se a div está visível e preenchida
+    if (divPagamento.style.display === 'block' && divPagamento.innerHTML.trim() !== '') {
+        // Pega o ID do carrinho que está no input searchId
+        const idCarrinho = document.getElementById('searchId').value;
+
+        if (idCarrinho) {
+            // Redireciona para a página do CRUD de pagamento, enviando o idCarrinho como query param
+            window.location.href = `../pagamento/pagamento.html?idCarrinho=${idCarrinho}`;
+        } else {
+            mostrarMensagem('ID do carrinho não encontrado para abrir o pagamento.', 'warning');
+        }
+    }
+});

@@ -239,6 +239,99 @@ select {
     color: #e6d6b8;
     box-shadow: 0 8px 32px #bfa76f55;
 }
+/* Card do gênero */
+.genero{
+    background: rgba(35,43,43,0.3);
+    backdrop-filter: blur(4px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px #bfa76f33;
+    padding: 1.5rem;
+    width: 85%;
+    margin: 1rem auto; /* centralizado */
+    display: flex;
+    flex-direction: column; /* imagem e info lado a lado */
+    align-items: center;
+    gap: 1.8rem;
+    transition: all 0.4s ease;
+    border: 1.5px solid #bfa76f55;
+    transform: translateY(20px);
+    margin-bottom: 2rem;
+}
+
+.genero.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.genero:hover {
+    transform: scale(1.02);
+    box-shadow: 0 16px 48px #bfa76f77;
+    border-color: #e6d6b8;
+}
+
+.genero-img {
+    width: 160px;
+    height: 230px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #bfa76f55;
+    box-shadow: 0 4px 16px #0a0e0e44;
+}
+
+.genero-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 450px;
+}
+
+.genero-info h3 {
+    color: #e6d6b8;
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.genero-info p {
+    color: #bfa76f;
+    font-size: 1.05rem;
+    opacity: 0.9;
+    text-align: justify;
+}
+
+/* Cabeçalho do gênero (título + descrição) */
+.genero-header {
+  cursor: pointer;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.genero-header h2 {
+  color: #bfa76f;
+  font-size: 1.8rem;
+  text-shadow: 0 2px 10px #0a0e0e88;
+}
+
+.genero-header p {
+  color: #e6d6b8;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* Container interno dos livros */
+.livros-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: flex-start;
+  transition: all 0.3s ease-in-out;
+}
+
+.carregando {
+  color: #bfa76f;
+  text-align: center;
+}
 
 /* Rodapé */
 footer {
@@ -252,8 +345,90 @@ footer {
     font-size: 1rem;
     letter-spacing: 1px;
 }
+
 footer a {
     color: #bfa76f;
     text-decoration: none;
     font-weight: 600;
 }
+
+.genero-top {
+    display: flex;
+    flex-direction: row; /* imagem + info lado a lado */
+    align-items: center;
+    gap: 1.8rem;
+}
+
+.livros-container {
+  overflow: hidden; /* necessário para animação de height */
+}
+
+.livro-card {
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.livros-container .livro-card {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* === Animações de abertura/fechamento === */
+.livros-container {
+  overflow: hidden;
+  transform-origin: top center;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  will-change: height, opacity, transform;
+}
+
+.livros-container.abrindo {
+  animation: containerAbrindo 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.livros-container.fechando {
+  animation: containerFechando 0.4s ease forwards;
+}
+
+/* Efeito de fade e leve deslize para baixo */
+@keyframes containerAbrindo {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) scaleY(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes containerFechando {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scaleY(0.95);
+  }
+}
+
+/* Transição suave para os cards de livros ao surgirem */
+.livro-card {
+  opacity: 0;
+  transform: translateY(15px) scale(0.98);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.livros-container.aberto .livro-card {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Delay suave entre cada livro surgindo (efeito cascata) */
+.livros-container.aberto .livro-card:nth-child(1) { transition-delay: 0.05s; }
+.livros-container.aberto .livro-card:nth-child(2) { transition-delay: 0.1s; }
+.livros-container.aberto .livro-card:nth-child(3) { transition-delay: 0.15s; }
+.livros-container.aberto .livro-card:nth-child(4) { transition-delay: 0.2s; }
+.livros-container.aberto .livro-card:nth-child(5) { transition-delay: 0.25s; }
+

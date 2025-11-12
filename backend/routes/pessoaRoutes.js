@@ -5,6 +5,7 @@ const pessoaController = require('../controllers/pessoaController');
 // CRUD de Pessoas
 
 router.get('/abrirCrudPessoa', pessoaController.abrirCrudPessoa);
+router.post('/criarUsuario', pessoaController.criarUsuario);
 router.get('/', pessoaController.listarPessoas);
 router.post('/', pessoaController.criarPessoa);
 router.get('/:id', pessoaController.obterPessoa);

@@ -1,3 +1,4 @@
+
 //import { query } from '../database.js';
 const { query } = require('../database');
 // Funções do controller
@@ -24,10 +25,10 @@ exports.listarCarrinho = async (req, res) => {
   }
 }
 
+// FUNÇÃO CORRIGIDA: Agora salva os itens também
 exports.criarCarrinho = async (req, res) => {
-  //  console.log('Criando carrinho com dados:', req.body);
   try {
-    const { id_carrinho, data_carrinho, id_pessoa } = req.body;
+    const { id_carrinho, data_carrinho, id_pessoa, itens } = req.body;
 
     // Verifica se já existe pagamento para este carrinho
     const pagamento = await query(
@@ -42,22 +43,39 @@ exports.criarCarrinho = async (req, res) => {
     }
 
     const hoje = new Date(); 
-      if (data_carrinho && new Date(data_carrinho) > hoje) {
-        return res.status(400).json({
-          error: 'A data de criação do carrinho não pode ser futura'
-        });
-      }
+    if (data_carrinho && new Date(data_carrinho) > hoje) {
+      return res.status(400).json({
+        error: 'A data de criação do carrinho não pode ser futura'
+      });
+    }
 
-    const result = await query(
-      'INSERT INTO carrinho (id_carrinho, data_carrinho, id_pessoa ) VALUES ($1, $2, $3) RETURNING *',
+    // Insere ou atualiza o carrinho
+    const carrinhoResult = await query(
+      `INSERT INTO carrinho (id_carrinho, data_carrinho, id_pessoa) 
+       VALUES ($1, $2, $3) 
+       ON CONFLICT (id_carrinho) 
+       DO UPDATE SET data_carrinho = $2, id_pessoa = $3
+       RETURNING *`,
       [id_carrinho, data_carrinho, id_pessoa]
     );
 
-    res.status(201).json(result.rows[0]);
+    const carrinhoId = carrinhoResult.rows[0].id_carrinho;
+
+    // Remove itens antigos e adiciona novos
+    if (itens && Array.isArray(itens)) {
+      await query('DELETE FROM carrinho_livros WHERE id_carrinho = $1', [carrinhoId]);
+      
+      for (const item of itens) {
+        await query(
+          'INSERT INTO carrinho_livros (id_carrinho, id_livro, quant_livro) VALUES ($1, $2, $3)',
+          [carrinhoId, item.id_livro, item.quantidade]
+        );
+      }
+    }
+
+    res.status(201).json(carrinhoResult.rows[0]);
   } catch (error) {
     console.error('Erro ao criar carrinho:', error);
-
-
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -181,6 +199,75 @@ exports.deletarCarrinho = async (req, res) => {
       });
     }
 
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+}
+
+// Cria um novo carrinho, deixando o banco gerar o id_carrinho
+exports.criarNovoCarrinho = async (req, res) => {
+  try {
+    // Recupera o nome do usuário logado pelo cookie
+    const nome = req.cookies.usuarioLogado;
+    if (!nome) {
+      return res.status(401).json({ error: 'Usuário não logado' });
+    }
+    // Busca o id_pessoa pelo nome
+    const pessoaResult = await query('SELECT id_pessoa FROM pessoa WHERE nome = $1', [nome]);
+    if (!pessoaResult.rows.length) {
+      return res.status(400).json({ error: 'Pessoa não encontrada' });
+    }
+    const id_pessoa = pessoaResult.rows[0].id_pessoa;
+    // Cria o carrinho com data atual e id_pessoa, id gerado pelo banco
+    const result = await query(
+      'INSERT INTO carrinho (data_carrinho, id_pessoa) VALUES (NOW(), $1) RETURNING *',
+      [id_pessoa]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Erro ao criar novo carrinho:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+}
+
+// FUNÇÃO CORRIGIDA: Agora retorna os itens junto com o carrinho
+exports.meusCarrinhos = async (req, res) => {
+  try {
+    const nome = req.cookies.usuarioLogado;
+    if (!nome) {
+      return res.json([]);
+    }
+    
+    const pessoaResult = await query('SELECT id_pessoa FROM pessoa WHERE nome = $1', [nome]);
+    if (!pessoaResult.rows.length) {
+      return res.json([]);
+    }
+    
+    const id_pessoa = pessoaResult.rows[0].id_pessoa;
+    const carrinhoResult = await query(
+      'SELECT * FROM carrinho WHERE id_pessoa = $1 ORDER BY id_carrinho DESC', 
+      [id_pessoa]
+    );
+    
+    // Para cada carrinho, busca os itens
+    const carrinhosComItens = await Promise.all(
+      carrinhoResult.rows.map(async (carrinho) => {
+        const itensResult = await query(
+          `SELECT cl.id_livro, l.nome_livro as nome, cl.quant_livro as quantidade
+           FROM carrinho_livros cl
+           JOIN livro l ON cl.id_livro = l.id_livro
+           WHERE cl.id_carrinho = $1`,
+          [carrinho.id_carrinho]
+        );
+        return {
+          ...carrinho,
+          itens: itensResult.rows
+        };
+      })
+    );
+    
+    res.json(carrinhosComItens);
+  } catch (error) {
+    console.error('Erro ao buscar meus carrinhos:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }

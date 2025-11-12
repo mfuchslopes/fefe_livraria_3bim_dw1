@@ -11,47 +11,58 @@
 
   <canvas id="network"></canvas>
   <header>
-    <div class="topo">
-      <h3>Menu Principal</h3>
-      <select id="oUsuario" onchange="handleUserAction(this.value)">
-        <option value="">usuario</option>
-        <option value="gerenciar-conta">Gerenciar Conta</option>
-        <option value="sair">Sair</option>
-      </select>
-    </div>
 
     <nav class="nav">
       <ul class="nav__menu">
-
-        <li class="nav__menu-item">
+        <li class="nav__menu-item" id="cadastros-menu" style="display:none">
           <a href="#" class="menu-link">Cadastros</a>
           <ul class="nav__submenu">
-            <li class="nav__submenu-item"><a href="http://localhost:3001/departamento/abrirCrudDepartamento">Departamento</a></li>
+            <li class="nav__submenu-item"><a href="http://localhost:3001/departamento/abrirCrudDepartamento">Departamento</a>
+            </li>
             <li class="nav__submenu-item"><a href="http://localhost:3001/livro/abrirCrudLivro">Livro</a></li>
             <li class="nav__submenu-item"><a href="http://localhost:3001/genero/abrirCrudGenero">Gênero</a></li>
             <li class="nav__submenu-item"><a href="http://localhost:3001/pessoa/abrirCrudPessoa">Pessoa</a></li>
             <li class="nav__submenu-item"><a href="http://localhost:3001/autor/abrirCrudAutor">Autor</a></li>
-            <li class="nav__submenu-item"><a href="http://localhost:3001/carrinho/abrirCrudCarrinho">Carrinho</a></li> 
-            <li class="nav__submenu-item"><a href="http://localhost:3001/pagamento/abrirCrudPagamento">Pagamento</a></li>         
-            
+            <li class="nav__submenu-item"><a href="http://localhost:3001/carrinho/abrirCrudCarrinho">Carrinho</a></li>
+            <li class="nav__submenu-item"><a href="http://localhost:3001/pagamento/abrirCrudPagamento">Pagamento</a></li>
           </ul>
         </li>
-
-        <li class="nav__menu-item"><a href="#" class="menu-link">Carrinho</a></li>
-        <li class="nav__menu-item"><a href="#" class="menu-link">Pagamento</a></li>
-
+        <li class="nav__menu-item" id="meus-carrinhos-menu" style="display:none"><a href="carrinho/usuarioCarrinho.html"
+            class="menu-link">Meus Carrinhos</a></li>
+        <li class="nav__menu-item" id="meus-pedidos-menu" style="display:none"><a href="pedidos/pedidos.html"
+            class="menu-link">Meus Pedidos</a></li>
+        <li class="nav__menu-item" id="pagamento-menu" style="display:none"><a href="pagamento/pagamento.html"
+            class="menu-link">Pagamento</a></li>
+        <li class="nav__menu-item" id="minha-conta-menu" style="display:none"><a href="pessoa/contaLogada.html"
+            class="menu-link">Minha Conta</a></li>
+        <li class="nav__menu-item" id="cadastro-menu"><a href="pessoa/cadastroUsuario.html" class="menu-link">Cadastro</a>
+        </li>
+        <li class="nav__menu-item" id="logout-menu" style="display:none"><a href="login/login.html" class="menu-link">Log
+            out</a></li>
+        <li class="nav__menu-item" id="login-menu"><a href="login/login.html" class="menu-link">Login</a></li>
+        <li class="nav__menu-item" id="abrir-carrinho-btn"
+          style="position:fixed;right:0;top:80px;z-index:1000;">
+          <button id="btnAbrirCarrinho" style="padding:10px 20px;">Carrinho</button>
+        </li>
       </ul>
     </nav>
   </header>
 
   <main>
-
     <section id="generos-container">
       <!-- Gêneros serão inseridos aqui -->
     </section>
     <section id="livros-container">
       <!-- Livros serão inseridos aqui -->
     </section>
+    <aside id="carrinho-lateral">
+      <div class="carrinho-header">
+        <h2>Meu Carrinho</h2>
+        <button id="btnFecharCarrinho">&times;</button>
+      </div>
+      <div id="carrinho-itens"></div>
+      <div id="carrinho-total"></div>
+    </aside>
 
   </main>
 
@@ -60,8 +71,8 @@
   </footer>
 
   <script src="./menu.js"></script>
-  
-<script src="network.js"></script>
+
+  <script src="network.js"></script>
 
 </body>
 

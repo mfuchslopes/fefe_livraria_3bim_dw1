@@ -251,3 +251,37 @@ exports.atualizarSenha = async (req, res) => {
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
+
+exports.criarUsuario = async (req, res) => {
+  //  console.log('Criando pessoa com dados:', req.body);
+  try {
+    const { cpf, cep, endereco, nome, email, senha } = req.body;
+    // Validação básica
+    if (!nome || !email || !senha || !cpf || !cep || !endereco) {
+      return res.status(400).json({ error: 'Nome, cpf, cep, endereço, email e senha são obrigatórios' });
+    }     
+    
+    const id_pessoa = null; // Deixa o banco gerar o ID automaticamente
+    const result = await query(
+      'INSERT INTO pessoa (cpf, cep, endereco, nome, email, senha) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [cpf, cep, endereco, nome, email, senha]
+    );  
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Erro ao criar pessoa:', error);
+
+    // Verifica se é erro de email duplicado (constraint unique violation)
+    if (error.code === '23505' && error.constraint === 'pessoa_email_key') {
+      return res.status(400).json({
+        error: 'Email já está em uso'
+      });
+    } 
+    // Verifica se é erro de violação de constraint NOT NULL
+    if (error.code === '23502') {
+      return res.status(400).json({
+        error: 'Dados obrigatórios não fornecidos'
+      });
+    } 
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+}

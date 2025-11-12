@@ -1,6 +1,15 @@
+
+
 const express = require('express');
 const router = express.Router();
 const carrinhoController = require('../controllers/carrinhoController');
+
+
+// Rota para retornar os carrinhos do usuário logado
+router.get('/meusCarrinhos', carrinhoController.meusCarrinhos);
+
+// Rota para criar novo carrinho (id gerado pelo banco)
+router.post('/novo', carrinhoController.criarNovoCarrinho);
 
 // CRUD de Carrinhos
 
